@@ -108,19 +108,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-green-50 px-4 py-8 relative">
-      {/* Logo de fondo */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
-        <img
-          src="/logoApp.jpeg"
-          alt="Background Logo"
-          className="w-96 h-96 object-contain"
-        />
-      </div>
-
-      <div className="w-full max-w-md mx-auto relative z-10">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-green-50 px-4 py-8">
+      <div className="w-full max-w-md mx-auto">
         {/* Login/Signup Card */}
-        <Card className="w-full shadow-2xl border-0 backdrop-blur-sm bg-white/95 mx-auto">
+        <Card className="w-full shadow-2xl border-0 backdrop-blur-sm bg-white/95">
           <CardHeader className="space-y-1 pb-6 pt-6">
             <CardTitle className="text-2xl text-center font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
               {isSignUp ? 'Crear Cuenta' : 'Iniciar Sesión'}
