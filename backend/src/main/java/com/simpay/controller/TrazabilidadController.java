@@ -18,7 +18,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/trazabilidad")
-@CrossOrigin(origins = "*", maxAge = 3600)
+
 public class TrazabilidadController {
 
     @Autowired
@@ -28,10 +28,10 @@ public class TrazabilidadController {
     public ResponseEntity<Page<Transaccion>> getAllTransacciones(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        
+
         Pageable pageable = PageRequest.of(page, size);
         Page<Transaccion> transacciones = transaccionService.getAllTransacciones(pageable);
-        
+
         return ResponseEntity.ok(transacciones);
     }
 
@@ -50,10 +50,10 @@ public class TrazabilidadController {
             @PathVariable UUID usuarioId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        
+
         Pageable pageable = PageRequest.of(page, size);
         Page<Transaccion> transacciones = transaccionService.getTransaccionesByUsuario(usuarioId, pageable);
-        
+
         return ResponseEntity.ok(transacciones);
     }
 
@@ -61,12 +61,12 @@ public class TrazabilidadController {
     public ResponseEntity<?> verificarIntegridad(@PathVariable UUID productoId) {
         try {
             boolean integro = transaccionService.verificarIntegridadTrazabilidad(productoId);
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("productoId", productoId);
             response.put("integridadVerificada", integro);
             response.put("mensaje", integro ? "Trazabilidad íntegra" : "Trazabilidad comprometida");
-            
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest()
@@ -80,13 +80,13 @@ public class TrazabilidadController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaFin) {
         try {
             Double totalVentas = transaccionService.calcularVentasPorPeriodo(fechaInicio, fechaFin);
-            
+
             Map<String, Object> reporte = new HashMap<>();
             reporte.put("fechaInicio", fechaInicio);
             reporte.put("fechaFin", fechaFin);
             reporte.put("totalVentas", totalVentas);
             reporte.put("periodo", fechaInicio.toLocalDate() + " - " + fechaFin.toLocalDate());
-            
+
             return ResponseEntity.ok(reporte);
         } catch (Exception e) {
             return ResponseEntity.badRequest()
@@ -98,7 +98,7 @@ public class TrazabilidadController {
     public ResponseEntity<?> getHashChain(@PathVariable UUID productoId) {
         try {
             List<Transaccion> transacciones = transaccionService.getTrazabilidadProducto(productoId);
-            
+
             Map<String, Object> hashChain = new HashMap<>();
             hashChain.put("productoId", productoId);
             hashChain.put("totalTransacciones", transacciones.size());
@@ -110,10 +110,9 @@ public class TrazabilidadController {
                             "timestamp", t.getCreatedAt(),
                             "tipo", t.getTipo(),
                             "stockAnterior", t.getStockAnterior(),
-                            "stockNuevo", t.getStockNuevo()
-                    ))
+                            "stockNuevo", t.getStockNuevo()))
                     .toList());
-            
+
             return ResponseEntity.ok(hashChain);
         } catch (Exception e) {
             return ResponseEntity.badRequest()

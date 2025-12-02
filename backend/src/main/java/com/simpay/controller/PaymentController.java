@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/payments")
-@CrossOrigin(origins = "${app.cors.allowed-origins}")
+
 public class PaymentController {
 
     @Autowired

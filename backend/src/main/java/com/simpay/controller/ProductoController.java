@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/productos")
-@CrossOrigin(origins = "*", maxAge = 3600)
+
 public class ProductoController {
 
     @Autowired
@@ -29,13 +29,12 @@ public class ProductoController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "nombre") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
-        
-        Sort sort = sortDir.equalsIgnoreCase("desc") ? 
-                Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
-        
+
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<Producto> productos = productoService.getAllProductos(pageable);
-        
+
         return ResponseEntity.ok(productos);
     }
 
@@ -60,10 +59,10 @@ public class ProductoController {
             @RequestParam String q,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        
+
         Pageable pageable = PageRequest.of(page, size);
         Page<Producto> productos = productoService.buscarProductos(q, pageable);
-        
+
         return ResponseEntity.ok(productos);
     }
 
@@ -72,10 +71,10 @@ public class ProductoController {
             @PathVariable String categoria,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        
+
         Pageable pageable = PageRequest.of(page, size);
         Page<Producto> productos = productoService.getProductosByCategoria(categoria, pageable);
-        
+
         return ResponseEntity.ok(productos);
     }
 
@@ -92,7 +91,7 @@ public class ProductoController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizarProducto(
-            @PathVariable UUID id, 
+            @PathVariable UUID id,
             @Valid @RequestBody ProductoDTO productoDTO) {
         try {
             Producto producto = productoService.actualizarProducto(id, productoDTO);
@@ -117,7 +116,7 @@ public class ProductoController {
     @GetMapping("/stock-bajo")
     public ResponseEntity<List<Producto>> getProductosStockBajo(
             @RequestParam(defaultValue = "10") Integer stockMinimo) {
-        
+
         List<Producto> productos = productoService.getProductosStockBajo(stockMinimo);
         return ResponseEntity.ok(productos);
     }

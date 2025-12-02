@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/ventas")
-@CrossOrigin(origins = "*", maxAge = 3600)
+
 public class VentaController {
 
     @Autowired
@@ -37,23 +37,23 @@ public class VentaController {
             // Obtener usuario del token
             String jwtToken = token.replace("Bearer ", "");
             Usuario usuario = authService.getUserFromToken(jwtToken);
-            
+
             // Procesar venta
             Transaccion transaccion = transaccionService.procesarVenta(ventaRequest, usuario);
-            
+
             // Generar links de pago
             String merchantId = "SIM-Pay";
             String nequiLink = paymentService.generateNequiLink(transaccion, merchantId);
             String daviplataLink = paymentService.generateDaviplataLink(transaccion, merchantId);
-            
+
             // Generar mensaje de WhatsApp
             String mensajeWhatsApp = paymentService.generateWhatsAppMessage(transaccion, nequiLink, daviplataLink);
             String whatsAppLink = null;
-            
+
             if (ventaRequest.getNumeroCliente() != null && !ventaRequest.getNumeroCliente().trim().isEmpty()) {
                 whatsAppLink = paymentService.generateWhatsAppLink(ventaRequest.getNumeroCliente(), mensajeWhatsApp);
             }
-            
+
             // Respuesta completa
             Map<String, Object> response = new HashMap<>();
             response.put("transaccion", transaccion);
@@ -62,7 +62,7 @@ public class VentaController {
             response.put("whatsAppLink", whatsAppLink);
             response.put("mensajeWhatsApp", mensajeWhatsApp);
             response.put("referencia", transaccion.getId().toString().substring(0, 8).toUpperCase());
-            
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest()
@@ -77,24 +77,24 @@ public class VentaController {
             @RequestHeader("Authorization") String token) {
         try {
             String referenciaPago = payload.get("referenciaPago");
-            
+
             if (referenciaPago == null || referenciaPago.trim().isEmpty()) {
                 return ResponseEntity.badRequest()
                         .body(new AuthController.MessageResponse("Referencia de pago requerida"));
             }
-            
+
             // Validar referencia
             if (!paymentService.validarReferenciaPago(referenciaPago)) {
                 return ResponseEntity.badRequest()
                         .body(new AuthController.MessageResponse("Referencia de pago inválida"));
             }
-            
+
             Transaccion transaccion = transaccionService.confirmarPago(transaccionId, referenciaPago);
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("transaccion", transaccion);
             response.put("mensaje", "Pago confirmado exitosamente");
-            
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest()
@@ -109,9 +109,9 @@ public class VentaController {
         try {
             String jwtToken = token.replace("Bearer ", "");
             Usuario usuario = authService.getUserFromToken(jwtToken);
-            
+
             Transaccion transaccion = transaccionService.cancelarTransaccion(transaccionId, usuario);
-            
+
             return ResponseEntity.ok(transaccion);
         } catch (Exception e) {
             return ResponseEntity.badRequest()
@@ -125,11 +125,11 @@ public class VentaController {
             @RequestParam String mensaje) {
         try {
             String whatsAppLink = paymentService.generateWhatsAppLink(numero, mensaje);
-            
+
             Map<String, String> response = new HashMap<>();
             response.put("whatsAppLink", whatsAppLink);
             response.put("mensaje", "Link generado exitosamente");
-            
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest()
