@@ -305,14 +305,6 @@ export default function LoginPage() {
           </CardContent>
         </Card>
 
-        {/* Logo SIM-Pay - AGREGADO ABAJO */}
-        <div className="flex justify-center mt-8">
-          <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-2xl shadow-lg">
-            <h2 className="text-3xl font-bold tracking-tight">SIM-Pay</h2>
-            <p className="text-xs text-green-100 text-center mt-1">Sistema de Inventario Modular</p>
-          </div>
-        </div>
-
         {/* Footer - Solo copyright */}
         <div className="text-center mt-6 text-xs text-gray-500">
           <p className="font-semibold">© 2026 SIM-Pay</p>
