@@ -110,17 +110,14 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-green-50 px-4 py-8">
       <div className="w-full max-w-md mx-auto">
-        {/* Header con Logo */}
-        <div className="text-center mb-6">
-          <div className="flex justify-center mb-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full blur-xl opacity-20 animate-pulse"></div>
-              <img
-                src="/logoApp.jpeg"
-                alt="Logo"
-                className="relative w-24 h-24 object-contain drop-shadow-xl hover:scale-105 transition-transform duration-300 mx-auto"
-              />
-            </div>
+        {/* Header con Logo - Muy pequeño */}
+        <div className="text-center mb-4">
+          <div className="flex justify-center">
+            <img
+              src="/logoApp.jpeg"
+              alt="Logo"
+              className="w-16 h-16 object-contain drop-shadow-lg mx-auto"
+            />
           </div>
         </div>
 
@@ -319,17 +316,10 @@ export default function LoginPage() {
           </CardContent>
         </Card>
 
-        {/* Footer */}
-        <div className="text-center mt-6 text-xs text-gray-500 space-y-1">
+        {/* Footer - Solo copyright */}
+        <div className="text-center mt-6 text-xs text-gray-500">
           <p className="font-semibold">© 2026 SIM-Pay</p>
           <p>Producido por Javier Campos y Angie Pinzón</p>
-          <div className="flex items-center justify-center gap-4 mt-3 text-gray-400">
-            <a href="#" className="hover:text-green-600 transition-colors">Términos</a>
-            <span>•</span>
-            <a href="#" className="hover:text-green-600 transition-colors">Privacidad</a>
-            <span>•</span>
-            <a href="#" className="hover:text-green-600 transition-colors">Ayuda</a>
-          </div>
         </div>
       </div>
     </div>
