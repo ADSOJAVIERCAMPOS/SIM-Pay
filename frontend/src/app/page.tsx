@@ -1,9 +1,16 @@
 export default function HomePage() {
   return (
     <div style={{ padding: '50px', textAlign: 'center', fontFamily: 'Arial' }}>
-      <h1 style={{ color: '#10b981', fontSize: '48px', marginBottom: '20px' }}>
-        💎 Inventario Intuitivo
-      </h1>
+      {/* Logo */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+        <img
+          src="/logoApp.jpeg"
+          alt="Optimus Logo"
+          style={{ width: '150px', height: '150px', objectFit: 'contain' }}
+        />
+      </div>
+
+
       <h2 style={{ fontSize: '24px', marginBottom: '30px' }}>
         con Pagos Móviles
       </h2>
@@ -62,7 +69,7 @@ export default function HomePage() {
       </div>
 
       <div style={{ marginTop: '50px', padding: '20px', backgroundColor: '#f3f4f6', borderRadius: '12px' }}>
-        <h3 style={{ marginBottom: '20px' }}>💼 Proyectos de Javier y Angie</h3>
+        <h3 style={{ marginBottom: '20px' }}>Producido por Javier y Angie</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
           <div>
             <h4>🔐 Trazabilidad</h4>
@@ -85,7 +92,7 @@ export default function HomePage() {
 
       <footer style={{ marginTop: '50px', padding: '20px', borderTop: '1px solid #e5e7eb' }}>
         <p style={{ color: '#666' }}>
-          🇨🇴 Colombia 2025
+          Colombia 2026
         </p>
       </footer>
     </div>
