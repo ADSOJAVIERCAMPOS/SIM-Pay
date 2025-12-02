@@ -7,11 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Package, 
-  ShoppingCart, 
-  DollarSign, 
-  TrendingUp, 
+import {
+  Package,
+  ShoppingCart,
+  DollarSign,
+  TrendingUp,
   Search,
   Plus,
   LogOut,
@@ -50,13 +50,13 @@ export default function DashboardPage() {
   const { user, logout } = useAuth()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('productos')
-  
+
   // Estados
   const [productos, setProductos] = useState<Producto[]>([])
   const [transacciones, setTransacciones] = useState<Transaccion[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  
+
   // Estados para venta
   const [ventaProducto, setVentaProducto] = useState<Producto | null>(null)
   const [ventaCantidad, setVentaCantidad] = useState(1)
@@ -78,7 +78,7 @@ export default function DashboardPage() {
         productosApi.getAll({ size: 20 }),
         trazabilidadApi.getTransacciones(0, 10)
       ])
-      
+
       setProductos(productosResponse.content || productosResponse)
       setTransacciones(transaccionesResponse.content || transaccionesResponse)
     } catch (error) {
@@ -135,10 +135,10 @@ ${response.whatsAppLink ? '📱 Enviado por WhatsApp' : ''}
       setVentaProducto(null)
       setVentaCantidad(1)
       setVentaTelefono('')
-      
+
       // Recargar datos
       loadData()
-      
+
     } catch (error) {
       console.error('Error procesando venta:', error)
       toast.error('Error procesando la venta')
@@ -171,14 +171,14 @@ ${response.whatsAppLink ? '📱 Enviado por WhatsApp' : ''}
                 <p className="text-sm text-gray-500">Sistema de Inventario Modular</p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900">{user?.nombre}</p>
                 <p className="text-xs text-gray-500">{user?.rol}</p>
               </div>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => router.push('/payments')}
                 className="bg-gradient-to-r from-purple-500 to-blue-500 text-white border-none hover:from-purple-600 hover:to-blue-600"
               >
@@ -251,11 +251,10 @@ ${response.whatsAppLink ? '📱 Enviado por WhatsApp' : ''}
               <button
                 key={tab}
                 onClick={() => tab === 'pagos' ? router.push('/payments') : setActiveTab(tab)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm capitalize ${
-                  activeTab === tab || (tab === 'pagos' && window?.location?.pathname === '/payments')
+                className={`py-2 px-1 border-b-2 font-medium text-sm capitalize ${activeTab === tab
                     ? 'border-primary text-primary'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                } flex items-center gap-1`}
+                  } flex items-center gap-1`}
               >
                 {tab === 'pagos' && <Smartphone className="h-3 w-3" />}
                 {tab}
@@ -291,11 +290,11 @@ ${response.whatsAppLink ? '📱 Enviado por WhatsApp' : ''}
                         {producto.stock}
                       </Badge>
                     </div>
-                    
+
                     <p className="text-sm text-gray-600 mb-2 line-clamp-2">
                       {producto.descripcion}
                     </p>
-                    
+
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-500">Precio:</span>
@@ -303,14 +302,14 @@ ${response.whatsAppLink ? '📱 Enviado por WhatsApp' : ''}
                           {formatCurrency(producto.precio)}
                         </span>
                       </div>
-                      
+
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-500">Categoría:</span>
                         <Badge variant="outline">{producto.categoria}</Badge>
                       </div>
-                      
+
                       <div className="pt-2">
-                        <Button 
+                        <Button
                           onClick={() => handleVenta(producto)}
                           className="w-full"
                           disabled={producto.stock === 0}
