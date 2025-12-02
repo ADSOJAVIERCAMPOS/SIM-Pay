@@ -12,7 +12,7 @@ export default function HomePage() {
 
 
       <h2 style={{ fontSize: '24px', marginBottom: '30px' }}>
-        con Pagos Móviles
+        NEGOCIO ONLINE Y CON PAGOS MÓVILES
       </h2>
       <p style={{ fontSize: '18px', marginBottom: '40px', color: '#666' }}>
         ✅ Trazabilidad Inmutable | 📱 Pagos Nequi/Daviplata | 🔐 Seguridad JWT
@@ -29,18 +29,6 @@ export default function HomePage() {
           fontWeight: 'bold'
         }}>
           🔐 Iniciar Sesión
-        </a>
-
-        <a href="/register" style={{
-          display: 'inline-block',
-          padding: '12px 24px',
-          backgroundColor: '#059669',
-          color: 'white',
-          textDecoration: 'none',
-          borderRadius: '8px',
-          fontWeight: 'bold'
-        }}>
-          📝 Registrarse
         </a>
 
         <a href="/productos" style={{
@@ -78,14 +66,6 @@ export default function HomePage() {
           <div>
             <h4>📱 Pagos Móviles</h4>
             <p>Nequi + Daviplata + WhatsApp</p>
-          </div>
-          <div>
-            <h4>🏗️ Arquitectura</h4>
-            <p>Spring Boot + Next.js</p>
-          </div>
-          <div>
-            <h4>🌐 Deploy</h4>
-            <p>Railway + Vercel</p>
           </div>
         </div>
       </div>
