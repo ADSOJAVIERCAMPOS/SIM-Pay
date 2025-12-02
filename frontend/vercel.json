@@ -1,8 +1,0 @@
-{
-  "buildCommand": "npm run build",
-  "env": {
-    "NEXT_PUBLIC_API_URL": "https://simpay-backend.railway.app/api",
-    "NEXTAUTH_URL": "https://sim-pay-frontend.vercel.app",
-    "NEXTAUTH_SECRET": "your-nextauth-secret-here"
-  }
-}
