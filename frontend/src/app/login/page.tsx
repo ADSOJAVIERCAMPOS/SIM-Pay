@@ -205,21 +205,9 @@ export default function LoginPage() {
                 </div>
               )}
 
-              {/* Remember Me & Forgot Password (solo en login) */}
+              {/* Forgot Password (solo en login) */}
               {!isSignUp && (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <input
-                      id="remember-me"
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded cursor-pointer"
-                    />
-                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 cursor-pointer">
-                      Recordarme
-                    </label>
-                  </div>
+                <div className="flex justify-end">
                   <button
                     type="button"
                     onClick={handleForgotPassword}
@@ -283,10 +271,14 @@ export default function LoginPage() {
               </Button>
             </div>
 
-            {/* Toggle between login/signup */}
-            <div className="text-center pt-6 border-t border-gray-100 mt-6">
-              <button
+            {/* Toggle between login/signup - DOS BOTONES SEPARADOS */}
+            <div className="pt-6 border-t border-gray-100 mt-6 space-y-3">
+              <p className="text-center text-sm text-gray-600">
+                {isSignUp ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}
+              </p>
+              <Button
                 type="button"
+                variant="outline"
                 onClick={() => {
                   setIsSignUp(!isSignUp)
                   setEmail('')
@@ -294,13 +286,10 @@ export default function LoginPage() {
                   setNombre('')
                   setConfirmPassword('')
                 }}
-                className="text-sm text-gray-600 hover:text-green-600 transition-colors font-medium inline-flex items-center gap-1 group"
+                className="w-full border-2 border-green-600 text-green-600 hover:bg-green-50 font-semibold py-6 rounded-xl transition-all duration-300"
               >
-                <span>{isSignUp ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}</span>
-                <span className="text-green-600 group-hover:translate-x-1 transition-transform">
-                  {isSignUp ? 'Inicia sesión' : 'Regístrate'}
-                </span>
-              </button>
+                {isSignUp ? 'Inicia sesión' : 'Regístrate'}
+              </Button>
             </div>
           </CardContent>
         </Card>
