@@ -16,6 +16,7 @@ export default function LoginPage() {
   const [nombre, setNombre] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const { login } = useAuth()
   const router = useRouter()
@@ -64,7 +65,6 @@ export default function LoginPage() {
       if (response.ok) {
         if (isSignUp) {
           toast.success('¡Cuenta creada exitosamente! Iniciando sesión...')
-          // Auto-login después del registro
           setTimeout(() => {
             login(data.token, {
               id: data.id,
@@ -97,34 +97,34 @@ export default function LoginPage() {
 
   const handleGoogleLogin = () => {
     toast.info('Google OAuth estará disponible próximamente')
-    // TODO: Implementar OAuth con Google
-    // window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/oauth2/authorization/google`
+  }
+
+  const handleFacebookLogin = () => {
+    toast.info('Facebook OAuth estará disponible próximamente')
+  }
+
+  const handleForgotPassword = () => {
+    toast.info('Recuperación de contraseña estará disponible próximamente')
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-600 via-emerald-600 to-teal-500 px-4 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-white opacity-10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white opacity-10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-      </div>
-
-      <div className="w-full max-w-md space-y-8 relative z-10">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4 py-8">
+      <div className="w-full max-w-md">
         {/* Header */}
-        <div className="text-center">
+        <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <div className="bg-white p-4 rounded-2xl shadow-2xl">
-              <Shield className="h-12 w-12 text-green-600" />
+            <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-4 rounded-2xl shadow-lg">
+              <Shield className="h-12 w-12 text-white" />
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-white mb-2">SIM-Pay</h1>
-          <p className="text-green-100">Sistema de Inventario Modular</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">SIM-Pay</h1>
+          <p className="text-gray-600">Sistema de Inventario Modular</p>
         </div>
 
         {/* Login/Signup Card */}
-        <Card className="w-full shadow-2xl border-0 backdrop-blur-sm bg-white/95">
-          <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-2xl text-center font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+        <Card className="w-full shadow-xl border border-gray-200">
+          <CardHeader className="space-y-1 pb-6">
+            <CardTitle className="text-2xl text-center font-bold text-gray-900">
               {isSignUp ? 'Crear Cuenta' : 'Iniciar Sesión'}
             </CardTitle>
             <CardDescription className="text-center text-gray-600">
@@ -139,7 +139,7 @@ export default function LoginPage() {
               {isSignUp && (
                 <div className="space-y-2">
                   <label htmlFor="nombre" className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <User className="h-4 w-4" />
+                    <User className="h-4 w-4 text-green-600" />
                     Nombre Completo
                   </label>
                   <Input
@@ -148,7 +148,7 @@ export default function LoginPage() {
                     placeholder="Juan Pérez"
                     value={nombre}
                     onChange={(e) => setNombre(e.target.value)}
-                    className="w-full transition-all focus:ring-2 focus:ring-green-500"
+                    className="w-full border-gray-300 focus:border-green-500 focus:ring-green-500"
                   />
                 </div>
               )}
@@ -156,7 +156,7 @@ export default function LoginPage() {
               {/* Email */}
               <div className="space-y-2">
                 <label htmlFor="email" className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
+                  <Mail className="h-4 w-4 text-green-600" />
                   Correo Electrónico
                 </label>
                 <Input
@@ -165,14 +165,14 @@ export default function LoginPage() {
                   placeholder="tu@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full transition-all focus:ring-2 focus:ring-green-500"
+                  className="w-full border-gray-300 focus:border-green-500 focus:ring-green-500"
                 />
               </div>
 
               {/* Password */}
               <div className="space-y-2">
                 <label htmlFor="password" className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <Lock className="h-4 w-4" />
+                  <Lock className="h-4 w-4 text-green-600" />
                   Contraseña
                 </label>
                 <div className="relative">
@@ -182,7 +182,7 @@ export default function LoginPage() {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pr-10 transition-all focus:ring-2 focus:ring-purple-500"
+                    className="w-full pr-10 border-gray-300 focus:border-green-500 focus:ring-green-500"
                   />
                   <button
                     type="button"
@@ -202,7 +202,7 @@ export default function LoginPage() {
               {isSignUp && (
                 <div className="space-y-2">
                   <label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <Lock className="h-4 w-4" />
+                    <Lock className="h-4 w-4 text-green-600" />
                     Confirmar Contraseña
                   </label>
                   <Input
@@ -211,14 +211,39 @@ export default function LoginPage() {
                     placeholder="••••••••"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full transition-all focus:ring-2 focus:ring-green-500"
+                    className="w-full border-gray-300 focus:border-green-500 focus:ring-green-500"
                   />
+                </div>
+              )}
+
+              {/* Remember Me & Forgot Password (solo en login) */}
+              {!isSignUp && (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <input
+                      id="remember-me"
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded cursor-pointer"
+                    />
+                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 cursor-pointer">
+                      Recordarme
+                    </label>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    className="text-sm text-green-600 hover:text-green-700 font-medium"
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </button>
                 </div>
               )}
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
+                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
                 disabled={isLoading}
               >
                 {isLoading
@@ -237,16 +262,32 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Google Login */}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleGoogleLogin}
-              className="w-full border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 py-6 rounded-lg transition-all duration-300 transform hover:scale-[1.02]"
-            >
-              <Chrome className="h-5 w-5 mr-2 text-green-600" />
-              <span className="font-semibold">Google</span>
-            </Button>
+            {/* Social Login Buttons */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Google Login */}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleGoogleLogin}
+                className="w-full border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 py-6 rounded-lg transition-all duration-300"
+              >
+                <Chrome className="h-5 w-5 mr-2 text-blue-600" />
+                <span className="font-semibold text-gray-700">Google</span>
+              </Button>
+
+              {/* Facebook Login */}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleFacebookLogin}
+                className="w-full border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 py-6 rounded-lg transition-all duration-300"
+              >
+                <svg className="h-5 w-5 mr-2" fill="#1877F2" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                </svg>
+                <span className="font-semibold text-gray-700">Facebook</span>
+              </Button>
+            </div>
 
             {/* Toggle between login/signup */}
             <div className="text-center pt-4">
@@ -266,34 +307,15 @@ export default function LoginPage() {
                   : '¿No tienes cuenta? Regístrate'}
               </button>
             </div>
-
-
           </CardContent>
         </Card>
 
         {/* Footer */}
-        <div className="text-center text-sm text-white/90">
+        <div className="text-center mt-8 text-sm text-gray-600">
           <p className="font-medium">© 2026 SIM-Pay</p>
           <p className="mt-1">Producido por Javier Campos y Angie Pinzón</p>
         </div>
       </div>
-
-      <style jsx global>{`
-        @keyframes pulse {
-          0%, 100% {
-            opacity: 0.1;
-          }
-          50% {
-            opacity: 0.2;
-          }
-        }
-        .animate-pulse {
-          animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        .delay-1000 {
-          animation-delay: 1s;
-        }
-      `}</style>
     </div>
   )
 }
