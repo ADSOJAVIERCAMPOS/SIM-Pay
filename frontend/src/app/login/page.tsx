@@ -296,7 +296,7 @@ export default function LoginPage() {
 
         {/* Footer - Solo copyright */}
         <div className="text-center mt-6 text-xs text-gray-500">
-          <p className="font-semibold">© 2026 SIM-Pay</p>
+          <p className="font-semibold">© 2026</p>
           <p>Producido por Javier Campos y Angie Pinzón</p>
         </div>
       </div>
