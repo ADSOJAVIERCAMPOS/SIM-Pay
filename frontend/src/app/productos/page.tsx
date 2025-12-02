@@ -1,3 +1,5 @@
+'use client'
+
 export default function ProductosPage() {
   // Productos de demostración
   const productos = [

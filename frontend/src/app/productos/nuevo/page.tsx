@@ -1,3 +1,5 @@
+'use client'
+
 export default function AddProductPage() {
   return (
     <div style={{ padding: '50px', fontFamily: 'Arial' }}>
