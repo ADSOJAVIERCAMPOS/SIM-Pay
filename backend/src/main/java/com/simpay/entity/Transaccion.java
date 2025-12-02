@@ -29,6 +29,10 @@ public class Transaccion {
     @Column(name = "producto_id", nullable = false)
     private UUID productoId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "producto_id", insertable = false, updatable = false)
+    private Producto producto;
+
     @NotNull
     @Column(name = "usuario_id", nullable = false)
     private UUID usuarioId;
@@ -145,6 +149,9 @@ public class Transaccion {
 
     public UUID getProductoId() { return productoId; }
     public void setProductoId(UUID productoId) { this.productoId = productoId; }
+
+    public Producto getProducto() { return producto; }
+    public void setProducto(Producto producto) { this.producto = producto; }
 
     public UUID getUsuarioId() { return usuarioId; }
     public void setUsuarioId(UUID usuarioId) { this.usuarioId = usuarioId; }

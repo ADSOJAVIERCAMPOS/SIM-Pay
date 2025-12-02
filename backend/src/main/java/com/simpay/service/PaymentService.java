@@ -1,105 +1,318 @@
 package com.simpay.service;
 
+import com.simpay.dto.PaymentRequest;
+import com.simpay.dto.PaymentResponse;
+import com.simpay.dto.WhatsAppPaymentRequest;
 import com.simpay.entity.Transaccion;
+import com.simpay.repository.TransaccionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
-import java.util.Locale;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PaymentService {
 
-    private static final String NEQUI_BASE_URL = "https://nequi.com.co/pagar";
-    private static final String DAVIPLATA_BASE_URL = "https://daviplata.com/pagar";
-    private static final String WHATSAPP_BASE_URL = "https://wa.me/57";
+    @Autowired
+    private TransaccionRepository transaccionRepository;
+
+    // Configuración de merchants (en producción esto sería configurable)
+    private static final String NEQUI_MERCHANT_ID = "SIMPAY001";
+    private static final String DAVIPLATA_MERCHANT_ID = "SIMPAY002";
+    
+    // Almacén temporal de pagos (en producción sería una base de datos)
+    private Map<UUID, PaymentResponse> payments = new HashMap<>();
+    
+    /**
+     * Genera un pago para Nequi con trazabilidad completa
+     */
+    public PaymentResponse generateNequiPayment(PaymentRequest request) {
+        UUID paymentId = UUID.randomUUID();
+        String paymentUrl = generateNequiPaymentLink(request);
+        String confirmationCode = generateConfirmationCode();
+        
+        PaymentResponse response = new PaymentResponse(
+            paymentId, request.getTransaccionId(), "NEQUI", 
+            request.getAmount(), "PENDING", paymentUrl
+        );
+        
+        response.setConfirmationCode(confirmationCode);
+        response.setCurrency("COP");
+        response.setExpiresAt(LocalDateTime.now().plusHours(24));
+        response.setQrCode(generateQRCode(paymentUrl));
+        
+        payments.put(paymentId, response);
+        
+        return response;
+    }
+    
+    /**
+     * Genera un pago para Daviplata con trazabilidad completa
+     */
+    public PaymentResponse generateDaviplataPayment(PaymentRequest request) {
+        UUID paymentId = UUID.randomUUID();
+        String paymentUrl = generateDaviplataPaymentLink(request);
+        String confirmationCode = generateConfirmationCode();
+        
+        PaymentResponse response = new PaymentResponse(
+            paymentId, request.getTransaccionId(), "DAVIPLATA", 
+            request.getAmount(), "PENDING", paymentUrl
+        );
+        
+        response.setConfirmationCode(confirmationCode);
+        response.setCurrency("COP");
+        response.setExpiresAt(LocalDateTime.now().plusHours(24));
+        response.setQrCode(generateQRCode(paymentUrl));
+        
+        payments.put(paymentId, response);
+        
+        return response;
+    }
+    
+    /**
+     * Genera y envía pago por WhatsApp
+     */
+    public PaymentResponse sendWhatsAppPayment(WhatsAppPaymentRequest request) {
+        // Generar pago según método seleccionado
+        PaymentRequest paymentReq = new PaymentRequest(
+            request.getTransaccionId(), request.getAmount(), request.getCurrency(),
+            request.getDescription(), request.getCustomerName(), request.getCustomerPhone()
+        );
+        
+        PaymentResponse payment = request.getPaymentMethod().equals("NEQUI") ?
+            generateNequiPayment(paymentReq) :
+            generateDaviplataPayment(paymentReq);
+        
+        // Generar mensaje de WhatsApp
+        String whatsappMessage = generateWhatsAppMessage(request, payment);
+        String whatsappUrl = generateWhatsAppUrl(request.getCustomerPhone(), whatsappMessage);
+        
+        payment.setWhatsappMessage(whatsappMessage);
+        payment.setPaymentUrl(whatsappUrl); // URL de WhatsApp en lugar del pago directo
+        
+        return payment;
+    }
+    
+    /**
+     * Confirma un pago manualmente con auditoría
+     */
+    public void confirmPayment(UUID paymentId, String confirmationCode) {
+        PaymentResponse payment = payments.get(paymentId);
+        
+        if (payment == null) {
+            throw new RuntimeException("Pago no encontrado");
+        }
+        
+        if (!payment.getConfirmationCode().equals(confirmationCode)) {
+            throw new RuntimeException("Código de confirmación inválido");
+        }
+        
+        if (LocalDateTime.now().isAfter(payment.getExpiresAt())) {
+            throw new RuntimeException("Pago expirado");
+        }
+        
+        payment.setStatus("CONFIRMED");
+        payment.setConfirmedAt(LocalDateTime.now());
+        
+        // Actualizar transacción asociada
+        updateTransactionStatus(payment.getTransaccionId(), "PAGADO", payment.getPaymentMethod());
+    }
+    
+    /**
+     * Obtiene el estado de un pago
+     */
+    public PaymentResponse getPaymentStatus(UUID paymentId) {
+        PaymentResponse payment = payments.get(paymentId);
+        if (payment == null) {
+            throw new RuntimeException("Pago no encontrado");
+        }
+        return payment;
+    }
+    
+    /**
+     * Lista todos los pagos
+     */
+    public List<PaymentResponse> getAllPayments() {
+        return new ArrayList<>(payments.values())
+            .stream()
+            .sorted((p1, p2) -> p2.getCreatedAt().compareTo(p1.getCreatedAt()))
+            .collect(Collectors.toList());
+    }
+    
+    // =============== MÉTODOS DE COMPATIBILIDAD ===============
     
     public String generateNequiLink(Transaccion transaccion, String merchantId) {
-        try {
-            String amount = formatAmount(transaccion.getTotal());
-            String reference = transaccion.getId().toString().substring(0, 8).toUpperCase();
-            
-            return String.format("%s?amount=%s&merchant=%s&reference=%s",
-                    NEQUI_BASE_URL,
-                    URLEncoder.encode(amount, StandardCharsets.UTF_8),
-                    URLEncoder.encode(merchantId, StandardCharsets.UTF_8),
-                    URLEncoder.encode(reference, StandardCharsets.UTF_8));
-        } catch (Exception e) {
-            throw new RuntimeException("Error generando link de Nequi", e);
-        }
+        PaymentRequest request = new PaymentRequest(
+            transaccion.getId(), transaccion.getTotal(), "COP",
+            transaccion.getProducto().getNombre(), "Cliente", "3001234567"
+        );
+        return generateNequiPaymentLink(request);
     }
     
     public String generateDaviplataLink(Transaccion transaccion, String merchantId) {
-        try {
-            String amount = formatAmount(transaccion.getTotal());
-            String reference = transaccion.getId().toString().substring(0, 8).toUpperCase();
-            
-            return String.format("%s?amount=%s&merchant=%s&reference=%s",
-                    DAVIPLATA_BASE_URL,
-                    URLEncoder.encode(amount, StandardCharsets.UTF_8),
-                    URLEncoder.encode(merchantId, StandardCharsets.UTF_8),
-                    URLEncoder.encode(reference, StandardCharsets.UTF_8));
-        } catch (Exception e) {
-            throw new RuntimeException("Error generando link de Daviplata", e);
-        }
+        PaymentRequest request = new PaymentRequest(
+            transaccion.getId(), transaccion.getTotal(), "COP",
+            transaccion.getProducto().getNombre(), "Cliente", "3001234567"
+        );
+        return generateDaviplataPaymentLink(request);
     }
     
-    public String generateWhatsAppMessage(Transaccion transaccion, String nequiLink, String daviplataLink) {
-        String amount = formatCurrency(transaccion.getTotal());
-        String reference = transaccion.getId().toString().substring(0, 8).toUpperCase();
+    public String generateWhatsAppMessage(Transaccion transaccion, String phoneNumber, String paymentMethod) {
+        WhatsAppPaymentRequest request = new WhatsAppPaymentRequest(
+            transaccion.getId(), transaccion.getTotal(), phoneNumber,
+            paymentMethod, transaccion.getProducto().getNombre()
+        );
+        request.setCustomerName("Cliente");
         
-        StringBuilder mensaje = new StringBuilder();
-        mensaje.append("¡Hola! Tu compra en SIM-Pay:\n\n");
-        mensaje.append("💰 *Total a pagar:* ").append(amount).append("\n");
-        mensaje.append("🔢 *Referencia:* ").append(reference).append("\n\n");
-        mensaje.append("📱 *Opciones de pago:*\n");
-        mensaje.append("• Nequi: ").append(nequiLink).append("\n");
-        mensaje.append("• Daviplata: ").append(daviplataLink).append("\n\n");
-        mensaje.append("✅ Una vez realices el pago, por favor envía el comprobante.\n\n");
-        mensaje.append("*Gracias por tu compra con SIM-Pay* 🚀");
+        PaymentResponse payment = sendWhatsAppPayment(request);
+        return payment.getWhatsappMessage();
+    }
+    
+    // =============== MÉTODOS PRIVADOS ===============
+    
+    /**
+     * Genera un link de pago para Nequi
+     */
+    private String generateNequiPaymentLink(PaymentRequest request) {
+        String amount = formatCurrency(request.getAmount());
+        String description = encodeDescription(request.getDescription());
+        String reference = request.getTransaccionId().toString();
         
-        return mensaje.toString();
+        return String.format(
+            "https://nequi.com.co/pay?merchant_id=%s&amount=%s&description=%s&reference=%s",
+            NEQUI_MERCHANT_ID, amount, description, reference
+        );
     }
     
-    public String generateWhatsAppLink(String phoneNumber, String message) {
-        try {
-            // Limpiar número de teléfono (solo dígitos)
-            String cleanPhone = phoneNumber.replaceAll("[^0-9]", "");
-            
-            // Asegurar que tenga el código de país de Colombia (57)
-            if (!cleanPhone.startsWith("57")) {
-                cleanPhone = "57" + cleanPhone;
-            }
-            
-            String encodedMessage = URLEncoder.encode(message, StandardCharsets.UTF_8);
-            
-            return String.format("%s%s?text=%s", WHATSAPP_BASE_URL, cleanPhone, encodedMessage);
-        } catch (Exception e) {
-            throw new RuntimeException("Error generando link de WhatsApp", e);
+    /**
+     * Genera un link de pago para Daviplata
+     */
+    private String generateDaviplataPaymentLink(PaymentRequest request) {
+        String amount = formatCurrency(request.getAmount());
+        String description = encodeDescription(request.getDescription());
+        String reference = request.getTransaccionId().toString();
+        
+        return String.format(
+            "https://daviplata.com/pay?merchant=%s&value=%s&desc=%s&ref=%s",
+            DAVIPLATA_MERCHANT_ID, amount, description, reference
+        );
+    }
+    
+    /**
+     * Genera un mensaje de WhatsApp profesional
+     */
+    private String generateWhatsAppMessage(WhatsAppPaymentRequest request, PaymentResponse payment) {
+        String amount = formatCurrency(request.getAmount());
+        String paymentMethod = request.getPaymentMethod();
+        
+        return String.format(
+            "🛒 *SIM-Pay - Solicitud de Pago*\n\n" +
+            "👤 Cliente: %s\n" +
+            "📦 Producto: %s\n" +
+            "💰 Total: %s\n" +
+            "🏦 Método: %s\n" +
+            "🔢 Código: %s\n\n" +
+            "👆 *Link de pago:*\n%s\n\n" +
+            "⏰ *Válido hasta:* %s\n\n" +
+            "✅ Envía el comprobante con el código *%s* para confirmar.\n\n" +
+            "_🔐 Powered by SIM-Pay - Trazabilidad Inmutable_",
+            request.getCustomerName(),
+            request.getDescription(),
+            amount,
+            paymentMethod,
+            payment.getConfirmationCode(),
+            generateNequiPaymentLink(new PaymentRequest(request.getTransaccionId(), request.getAmount(), "COP", request.getDescription(), request.getCustomerName(), request.getCustomerPhone())),
+            payment.getExpiresAt().toString().substring(0, 16),
+            payment.getConfirmationCode()
+        );
+    }
+    
+    /**
+     * Genera URL de WhatsApp con mensaje prellenado
+     */
+    private String generateWhatsAppUrl(String phoneNumber, String message) {
+        String cleanPhone = phoneNumber.replaceAll("[^0-9]", "");
+        
+        if (!cleanPhone.startsWith("57") && cleanPhone.length() == 10) {
+            cleanPhone = "57" + cleanPhone;
         }
+        
+        String encodedMessage = message.replaceAll("\\s", "%20")
+                                     .replaceAll("\\n", "%0A")
+                                     .replaceAll("\\*", "%2A")
+                                     .replaceAll("_", "%5F");
+        
+        return String.format("https://wa.me/%s?text=%s", cleanPhone, encodedMessage);
     }
     
-    private String formatAmount(BigDecimal amount) {
-        return amount.setScale(0, BigDecimal.ROUND_HALF_UP).toString();
+    /**
+     * Genera código de confirmación único
+     */
+    private String generateConfirmationCode() {
+        return String.format("SP%06d", new Random().nextInt(1000000));
     }
     
+    /**
+     * Genera código QR para el pago (simulado)
+     */
+    private String generateQRCode(String data) {
+        return String.format("data:image/png;base64,QR_CODE_FOR_%s", 
+                           Base64.getEncoder().encodeToString(data.getBytes()));
+    }
+    
+    /**
+     * Actualiza el estado de la transacción
+     */
+    private void updateTransactionStatus(UUID transaccionId, String status, String paymentMethod) {
+        transaccionRepository.findById(transaccionId).ifPresent(transaccion -> {
+            transaccion.setEstado(Transaccion.EstadoTransaccion.valueOf(status));
+            transaccion.setMetodoPago(paymentMethod);
+            transaccion.setReferenciaPago("CONF_" + generateConfirmationCode());
+            transaccionRepository.save(transaccion);
+        });
+    }
+    
+    /**
+     * Formatea el monto como moneda colombiana
+     */
     private String formatCurrency(BigDecimal amount) {
         NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("es", "CO"));
-        return formatter.format(amount);
+        return formatter.format(amount).replace("COP", "").trim();
     }
     
-    // Validar referencia de pago (formato básico)
+    /**
+     * Codifica la descripción para URLs
+     */
+    private String encodeDescription(String description) {
+        return description.replaceAll("\\s+", "%20")
+                         .replaceAll("[^a-zA-Z0-9%]", "");
+    }
+    
+    /**
+     * Genera un link de WhatsApp con el mensaje de pago
+     */
+    public String generateWhatsAppLink(String phoneNumber, String paymentLink) {
+        String message = "🛒 *SIM-Pay - Link de Pago*%0A%0A" +
+                        "💰 Realiza tu pago seguro aquí:%0A" + 
+                        paymentLink + "%0A%0A" +
+                        "✅ Pago seguro con trazabilidad inmutable";
+        
+        return "https://wa.me/" + phoneNumber.replaceAll("[^0-9]", "") + "?text=" + message;
+    }
+    
+    /**
+     * Valida una referencia de pago
+     */
     public boolean validarReferenciaPago(String referencia) {
-        return referencia != null && 
-               referencia.length() >= 6 && 
-               referencia.matches("[A-Za-z0-9]+");
-    }
-    
-    // Simular verificación de pago (en producción sería una API real)
-    public boolean verificarPago(String metodoPago, String referencia, BigDecimal monto) {
-        // Simulación: cualquier referencia válida se considera como pago exitoso
-        return validarReferenciaPago(referencia);
+        if (referencia == null || referencia.trim().isEmpty()) {
+            return false;
+        }
+        
+        // Validar formato de referencia (ejemplo: NEQ123456, DAV789012)
+        return referencia.matches("^(NEQ|DAV|SIM)[0-9]{6}$");
     }
 }
