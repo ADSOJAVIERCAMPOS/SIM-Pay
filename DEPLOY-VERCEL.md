@@ -71,7 +71,7 @@ Agregar en Vercel → Settings → Environment Variables:
 
 ## ✅ URLs Finales
 
-- **Frontend:** https://sim-pay.vercel.app
+- **Frontend:** https://sim-pay2026.vercel.app
 - **Backend:** https://sim-pay-backend.railway.app (pendiente)
 
 ## 🎓 Tesis Doctoral
