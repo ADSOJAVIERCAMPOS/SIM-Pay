@@ -109,29 +109,23 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-green-50 px-4 py-8">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md mx-auto">
         {/* Header con Logo */}
         <div className="text-center mb-6">
           <div className="flex justify-center mb-4">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full blur-2xl opacity-20 animate-pulse"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full blur-xl opacity-20 animate-pulse"></div>
               <img
                 src="/logoApp.jpeg"
-                alt="SIM-Pay Logo"
-                className="relative w-32 h-32 object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300"
+                alt="Logo"
+                className="relative w-24 h-24 object-contain drop-shadow-xl hover:scale-105 transition-transform duration-300 mx-auto"
               />
             </div>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-2">
-            SIM-Pay
-          </h1>
-          <p className="text-gray-600 text-sm font-medium">
-            Sistema de Inventario Modular
-          </p>
         </div>
 
         {/* Login/Signup Card */}
-        <Card className="w-full shadow-2xl border-0 backdrop-blur-sm bg-white/95">
+        <Card className="w-full shadow-2xl border-0 backdrop-blur-sm bg-white/95 mx-auto">
           <CardHeader className="space-y-1 pb-6 pt-6">
             <CardTitle className="text-2xl text-center font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
               {isSignUp ? 'Crear Cuenta' : 'Iniciar Sesión'}
