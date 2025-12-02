@@ -4,7 +4,6 @@ import com.simpay.entity.Usuario;
 import com.simpay.entity.Producto;
 import com.simpay.repository.UsuarioRepository;
 import com.simpay.repository.ProductoRepository;
-import com.simpay.enums.RolUsuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -51,7 +50,7 @@ public class ProductionDataInitializer implements CommandLineRunner {
             admin.setEmail("admin@simpay.com");
             admin.setNombre("Administrador SIM-Pay");
             admin.setPasswordHash(passwordEncoder.encode("Admin123!"));
-            admin.setRol(RolUsuario.ADMIN);
+            admin.setRol(Usuario.Rol.ADMIN);
             admin.setActivo(true);
             admin.setCreatedAt(LocalDateTime.now());
             
@@ -68,7 +67,7 @@ public class ProductionDataInitializer implements CommandLineRunner {
             vendedor.setEmail("vendedor@simpay.com");
             vendedor.setNombre("Vendedor Demo");
             vendedor.setPasswordHash(passwordEncoder.encode("Vendedor123!"));
-            vendedor.setRol(RolUsuario.VENDEDOR);
+            vendedor.setRol(Usuario.Rol.CAJERO);
             vendedor.setActivo(true);
             vendedor.setCreatedAt(LocalDateTime.now());
             

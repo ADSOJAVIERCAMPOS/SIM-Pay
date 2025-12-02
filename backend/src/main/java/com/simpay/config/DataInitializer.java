@@ -39,7 +39,7 @@ public class DataInitializer implements CommandLineRunner {
                 "vendedor@simpay.com",
                 passwordEncoder.encode("vendedor123"),
                 "Vendedor Demo",
-                Usuario.Rol.VENDEDOR
+                Usuario.Rol.CAJERO
             );
             usuarioRepository.save(vendedor);
 

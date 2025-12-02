@@ -37,7 +37,7 @@ public class Usuario {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Rol rol = Rol.USUARIO;
+    private Rol rol = Rol.VIEWER;
 
     @Column(nullable = false)
     private Boolean activo = true;
@@ -86,6 +86,6 @@ public class Usuario {
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
     public enum Rol {
-        ADMIN, VENDEDOR, USUARIO
+        ADMIN, GERENTE, CAJERO, CONTADOR, VIEWER
     }
 }

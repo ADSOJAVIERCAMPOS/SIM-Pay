@@ -2,17 +2,9 @@
   "name": "sim-pay2026-root",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "frontend"
-  ],
   "scripts": {
-    "dev": "cd frontend && npm run dev",
-    "build": "cd frontend && npm run build",
-    "start": "cd frontend && npm run start"
-  },
-  "dependencies": {
-    "next": "14.0.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "start:frontend": "cd frontend && npm run start"
   }
 }
