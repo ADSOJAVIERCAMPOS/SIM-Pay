@@ -41,7 +41,7 @@ export default function ProductosPage() {
     }
   ];
 
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-CO', {
       style: 'currency',
       currency: 'COP',
@@ -52,9 +52,9 @@ export default function ProductosPage() {
   return (
     <div style={{ padding: '30px', fontFamily: 'Arial' }}>
       {/* Header */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: '30px'
       }}>
@@ -66,22 +66,22 @@ export default function ProductosPage() {
             Sistema de inventario con trazabilidad inmutable
           </p>
         </div>
-        
+
         <div style={{ display: 'flex', gap: '10px' }}>
-          <a href="/" style={{ 
-            padding: '10px 20px', 
-            backgroundColor: '#6b7280', 
-            color: 'white', 
+          <a href="/" style={{
+            padding: '10px 20px',
+            backgroundColor: '#6b7280',
+            color: 'white',
             textDecoration: 'none',
             borderRadius: '8px',
             fontWeight: 'bold'
           }}>
             ← Inicio
           </a>
-          <a href="/productos/nuevo" style={{ 
-            padding: '10px 20px', 
-            backgroundColor: '#059669', 
-            color: 'white', 
+          <a href="/productos/nuevo" style={{
+            padding: '10px 20px',
+            backgroundColor: '#059669',
+            color: 'white',
             textDecoration: 'none',
             borderRadius: '8px',
             fontWeight: 'bold'
@@ -92,15 +92,15 @@ export default function ProductosPage() {
       </div>
 
       {/* Stats */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
         gap: '20px',
         marginBottom: '30px'
       }}>
-        <div style={{ 
-          padding: '20px', 
-          backgroundColor: '#dbeafe', 
+        <div style={{
+          padding: '20px',
+          backgroundColor: '#dbeafe',
           borderRadius: '12px',
           textAlign: 'center'
         }}>
@@ -109,10 +109,10 @@ export default function ProductosPage() {
             {productos.length}
           </div>
         </div>
-        
-        <div style={{ 
-          padding: '20px', 
-          backgroundColor: '#dcfce7', 
+
+        <div style={{
+          padding: '20px',
+          backgroundColor: '#dcfce7',
           borderRadius: '12px',
           textAlign: 'center'
         }}>
@@ -121,10 +121,10 @@ export default function ProductosPage() {
             {productos.reduce((sum, p) => sum + p.stock, 0)}
           </div>
         </div>
-        
-        <div style={{ 
-          padding: '20px', 
-          backgroundColor: '#fef3c7', 
+
+        <div style={{
+          padding: '20px',
+          backgroundColor: '#fef3c7',
           borderRadius: '12px',
           textAlign: 'center'
         }}>
@@ -136,25 +136,25 @@ export default function ProductosPage() {
       </div>
 
       {/* Lista de productos */}
-      <div style={{ 
-        backgroundColor: '#f9fafb', 
+      <div style={{
+        backgroundColor: '#f9fafb',
         border: '1px solid #e5e7eb',
         borderRadius: '12px',
         overflow: 'hidden'
       }}>
-        <div style={{ 
-          padding: '20px', 
-          backgroundColor: '#374151', 
+        <div style={{
+          padding: '20px',
+          backgroundColor: '#374151',
           color: 'white',
           fontWeight: 'bold'
         }}>
           📋 Lista de Productos
         </div>
-        
+
         <div style={{ padding: '0' }}>
           {productos.map((producto, index) => (
-            <div key={producto.id} style={{ 
-              padding: '20px', 
+            <div key={producto.id} style={{
+              padding: '20px',
               borderBottom: index < productos.length - 1 ? '1px solid #e5e7eb' : 'none',
               backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9fafb'
             }}>
@@ -166,7 +166,7 @@ export default function ProductosPage() {
                   <p style={{ margin: '0 0 10px 0', color: '#6b7280', fontSize: '14px' }}>
                     {producto.descripcion}
                   </p>
-                  <div style={{ 
+                  <div style={{
                     display: 'inline-block',
                     padding: '4px 8px',
                     backgroundColor: '#e0e7ff',
@@ -178,28 +178,28 @@ export default function ProductosPage() {
                     {producto.categoria}
                   </div>
                 </div>
-                
+
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#059669' }}>
                     {formatCurrency(producto.precio)}
                   </div>
                   <div style={{ fontSize: '12px', color: '#6b7280' }}>Precio</div>
                 </div>
-                
+
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ 
-                    fontSize: '18px', 
-                    fontWeight: 'bold', 
+                  <div style={{
+                    fontSize: '18px',
+                    fontWeight: 'bold',
                     color: producto.stock > 5 ? '#059669' : '#dc2626'
                   }}>
                     {producto.stock}
                   </div>
                   <div style={{ fontSize: '12px', color: '#6b7280' }}>Stock</div>
                 </div>
-                
+
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ 
-                    fontSize: '12px', 
+                  <div style={{
+                    fontSize: '12px',
                     color: '#6b7280',
                     fontFamily: 'monospace',
                     backgroundColor: '#f3f4f6',
@@ -210,13 +210,13 @@ export default function ProductosPage() {
                   </div>
                   <div style={{ fontSize: '10px', color: '#9ca3af' }}>Hash SHA-256</div>
                 </div>
-                
+
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <button 
+                  <button
                     onClick={() => alert(`✏️ Editando producto: ${producto.nombre}`)}
-                    style={{ 
-                      padding: '8px 12px', 
-                      backgroundColor: '#2563eb', 
+                    style={{
+                      padding: '8px 12px',
+                      backgroundColor: '#2563eb',
                       color: 'white',
                       border: 'none',
                       borderRadius: '6px',
@@ -226,14 +226,14 @@ export default function ProductosPage() {
                   >
                     ✏️ Editar
                   </button>
-                  <button 
+                  <button
                     onClick={() => {
                       const link = `https://wa.me/573001234567?text=🛒 *SIM-Pay* - Producto disponible:%0A%0A📦 ${producto.nombre}%0A💰 ${formatCurrency(producto.precio)}%0A📊 Stock: ${producto.stock}%0A%0A¿Te interesa?`;
                       alert(`📱 Link de WhatsApp generado para: ${producto.nombre}`);
                     }}
-                    style={{ 
-                      padding: '8px 12px', 
-                      backgroundColor: '#25D366', 
+                    style={{
+                      padding: '8px 12px',
+                      backgroundColor: '#25D366',
                       color: 'white',
                       border: 'none',
                       borderRadius: '6px',
@@ -249,11 +249,11 @@ export default function ProductosPage() {
           ))}
         </div>
       </div>
-      
+
       <div style={{ marginTop: '30px', textAlign: 'center' }}>
-        <div style={{ 
-          padding: '20px', 
-          backgroundColor: '#ecfdf5', 
+        <div style={{
+          padding: '20px',
+          backgroundColor: '#ecfdf5',
           borderRadius: '12px',
           border: '1px solid #86efac'
         }}>
@@ -261,7 +261,7 @@ export default function ProductosPage() {
             🔐 Trazabilidad Garantizada
           </h4>
           <p style={{ margin: 0, color: '#166534' }}>
-            Cada producto tiene un hash SHA-256 único que garantiza la integridad 
+            Cada producto tiene un hash SHA-256 único que garantiza la integridad
             y trazabilidad completa en el sistema SIM-Pay.
           </p>
         </div>
