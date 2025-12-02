@@ -110,8 +110,8 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-green-50 px-4 py-8">
       <div className="w-full max-w-md mx-auto">
-        {/* Login/Signup Card - Centered */}
-        <Card className="w-full shadow-2xl border-0 backdrop-blur-sm bg-white/95">
+        {/* Login/Signup Card - RECUADRO VISIBLE CON BORDE */}
+        <Card className="w-full shadow-2xl border-4 border-green-500 backdrop-blur-sm bg-white/95 p-2">
           <CardHeader className="space-y-1 pb-6 pt-6">
             <CardTitle className="text-2xl text-center font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
               {isSignUp ? 'Crear Cuenta' : 'Iniciar Sesión'}
@@ -276,7 +276,7 @@ export default function LoginPage() {
                 onClick={handleFacebookLogin}
                 className="w-full border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50/50 py-6 rounded-xl transition-all duration-300 hover:shadow-md hover:scale-[1.02] flex items-center justify-center"
               >
-                <svg className="h-6 w-6 mr-2" fill="#1877F2" viewBox="0 0 24 24">
+                <svg className="h-4 w-4 mr-2" fill="#1877F2" viewBox="0 0 24 24">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
                 <span className="font-semibold text-gray-700 text-sm">Facebook</span>
