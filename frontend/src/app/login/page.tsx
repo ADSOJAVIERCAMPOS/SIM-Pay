@@ -19,6 +19,10 @@ export default function LoginPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [show2FAModal, setShow2FAModal] = useState(false)
+  const [verificationCode, setVerificationCode] = useState('')
+  const [pendingProvider, setPendingProvider] = useState<'google' | 'facebook' | null>(null)
+  const [menuRotation, setMenuRotation] = useState(0)
   const { login } = useAuth()
   const router = useRouter()
 
@@ -96,18 +100,110 @@ export default function LoginPage() {
     }
   }
 
-  const handleGoogleLogin = () => {
-    // Redirigir a Google OAuth
-    window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID&redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/google/callback') + '&response_type=code&scope=email%20profile'
+  const handleGoogleLogin = async () => {
+    try {
+      // Detectar información del dispositivo
+      const deviceInfo = {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        timestamp: new Date().toISOString()
+      }
+
+      // Enviar notificación al backend para verificar si es nuevo dispositivo
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/check-device`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider: 'google', deviceInfo })
+      })
+
+      const data = await response.json()
+
+      if (data.isNewDevice || data.requires2FA) {
+        // Mostrar modal de verificación 2FA
+        setPendingProvider('google')
+        setShow2FAModal(true)
+        toast.info('Se ha enviado un código de verificación a tu correo/teléfono')
+      } else {
+        // Proceder con OAuth normal
+        window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID&redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/google/callback') + '&response_type=code&scope=email%20profile'
+      }
+    } catch (error) {
+      console.error('Error en Google login:', error)
+      toast.error('Error al iniciar sesión con Google')
+    }
   }
 
-  const handleFacebookLogin = () => {
-    // Redirigir a Facebook OAuth
-    window.location.href = 'https://www.facebook.com/v12.0/dialog/oauth?client_id=YOUR_APP_ID&redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/facebook/callback') + '&scope=email,public_profile'
+  const handleFacebookLogin = async () => {
+    try {
+      // Detectar información del dispositivo
+      const deviceInfo = {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        timestamp: new Date().toISOString()
+      }
+
+      // Enviar notificación al backend para verificar si es nuevo dispositivo
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/check-device`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider: 'facebook', deviceInfo })
+      })
+
+      const data = await response.json()
+
+      if (data.isNewDevice || data.requires2FA) {
+        // Mostrar modal de verificación 2FA
+        setPendingProvider('facebook')
+        setShow2FAModal(true)
+        toast.info('Se ha enviado un código de verificación a tu correo/teléfono')
+      } else {
+        // Proceder con OAuth normal
+        window.location.href = 'https://www.facebook.com/v12.0/dialog/oauth?client_id=YOUR_APP_ID&redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/facebook/callback') + '&scope=email,public_profile'
+      }
+    } catch (error) {
+      console.error('Error en Facebook login:', error)
+      toast.error('Error al iniciar sesión con Facebook')
+    }
   }
 
   const handleForgotPassword = () => {
     toast.info('Recuperación de contraseña estará disponible próximamente')
+  }
+
+  const handleVerify2FA = async () => {
+    if (!verificationCode || verificationCode.length !== 6) {
+      toast.error('Ingrese un código de 6 dígitos válido')
+      return
+    }
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-2fa`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: verificationCode, provider: pendingProvider })
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.verified) {
+        toast.success('Código verificado correctamente')
+        setShow2FAModal(false)
+        
+        // Continuar con OAuth según el proveedor
+        if (pendingProvider === 'google') {
+          window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID&redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/google/callback') + '&response_type=code&scope=email%20profile'
+        } else if (pendingProvider === 'facebook') {
+          window.location.href = 'https://www.facebook.com/v12.0/dialog/oauth?client_id=YOUR_APP_ID&redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/facebook/callback') + '&scope=email,public_profile'
+        }
+      } else {
+        toast.error('Código inválido. Intente nuevamente.')
+      }
+    } catch (error) {
+      console.error('Error verificando 2FA:', error)
+      toast.error('Error en la verificación')
+    }
   }
 
   return (
@@ -280,8 +376,8 @@ export default function LoginPage() {
               </Button>
             </div>
 
-            {/* Toggle between login/signup - DOS BOTONES SEPARADOS */}
-            <div className="pt-6 border-t border-gray-100 mt-6 space-y-3">
+            {/* Toggle between login/signup - DOS BOTONES SEPARADOS CON ANIMACIÓN */}
+            <div className="pt-6 border-t border-gray-100 mt-6 space-y-3" style={{ transition: 'transform 0.6s', transform: `rotate(${menuRotation}deg)` }}>
               <p className="text-center text-sm text-gray-600">
                 {isSignUp ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}
               </p>
@@ -290,6 +386,7 @@ export default function LoginPage() {
                 variant="outline"
                 onClick={() => {
                   setIsSignUp(!isSignUp)
+                  setMenuRotation(menuRotation + 180)
                   setEmail('')
                   setPassword('')
                   setNombre('')
@@ -309,6 +406,59 @@ export default function LoginPage() {
           <p>JAVIER - ANGIE</p>
         </div>
       </div>
+
+      {/* Modal de Verificación 2FA */}
+      {show2FAModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+          <Card className="w-full max-w-md bg-white shadow-2xl">
+            <CardHeader>
+              <CardTitle className="text-xl text-center text-green-600">Verificación de Seguridad</CardTitle>
+              <CardDescription className="text-center">
+                Se ha detectado un nuevo dispositivo. Por favor ingresa el código de verificación enviado a tu correo/teléfono.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <label htmlFor="verificationCode" className="text-sm font-medium text-gray-700">
+                  Código de Verificación (6 dígitos)
+                </label>
+                <Input
+                  id="verificationCode"
+                  type="text"
+                  maxLength={6}
+                  placeholder="123456"
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
+                  className="w-full text-center text-2xl tracking-widest border-gray-300 focus:border-green-500 focus:ring-green-500"
+                />
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => {
+                    setShow2FAModal(false)
+                    setVerificationCode('')
+                    setPendingProvider(null)
+                  }}
+                  variant="outline"
+                  className="flex-1 border-2 border-gray-300 hover:bg-gray-50"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleVerify2FA}
+                  disabled={verificationCode.length !== 6}
+                  className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+                >
+                  Verificar
+                </Button>
+              </div>
+              <p className="text-xs text-center text-gray-500">
+                ¿No recibiste el código? <button className="text-green-600 hover:underline">Reenviar</button>
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }
