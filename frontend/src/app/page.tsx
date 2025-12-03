@@ -78,7 +78,7 @@ export default function HomePage() {
         </div>
 
         <div style={{ marginTop: '50px', padding: '20px', backgroundColor: '#f3f4f6', borderRadius: '12px' }}>
-          <h3 style={{ marginBottom: '20px' }}>Producido por Javier y Angie</h3>
+          <h3 style={{ marginBottom: '20px' }}>Javier y Angie</h3>
         </div>
 
         <footer style={{ marginTop: '50px', padding: '20px', borderTop: '1px solid #e5e7eb' }}>
