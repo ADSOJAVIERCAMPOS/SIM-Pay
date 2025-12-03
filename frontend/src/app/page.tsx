@@ -1,4 +1,19 @@
+'use client'
+
+import { useState } from 'react'
+
 export default function HomePage() {
+  const [flipStates, setFlipStates] = useState({ login: false, productos: false, pagos: false })
+
+  const handleFlip = (button: 'login' | 'productos' | 'pagos') => {
+    setFlipStates(prev => ({ ...prev, [button]: true }))
+    setTimeout(() => {
+      if (button === 'login') window.location.href = '/login'
+      else if (button === 'productos') window.location.href = '/productos'
+      else window.location.href = '/payments'
+    }, 300)
+  }
+
   return (
     <div style={{ padding: '50px', textAlign: 'center', fontFamily: 'Arial' }}>
       {/* Logo */}
@@ -16,41 +31,56 @@ export default function HomePage() {
       </h2>
 
       <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
-        <a href="/login" style={{
+        <button onClick={() => handleFlip('login')} style={{
           display: 'inline-block',
           padding: '12px 24px',
           backgroundColor: '#16a34a',
           color: 'white',
           textDecoration: 'none',
           borderRadius: '8px',
-          fontWeight: 'bold'
+          fontWeight: 'bold',
+          border: 'none',
+          cursor: 'pointer',
+          transform: flipStates.login ? 'rotateY(180deg)' : 'rotateY(0deg)',
+          transition: 'transform 0.6s',
+          transformStyle: 'preserve-3d'
         }}>
           🔐 Conectarse
-        </a>
+        </button>
 
-        <a href="/productos" style={{
+        <button onClick={() => handleFlip('productos')} style={{
           display: 'inline-block',
           padding: '12px 24px',
           backgroundColor: '#15803d',
           color: 'white',
           textDecoration: 'none',
           borderRadius: '8px',
-          fontWeight: 'bold'
+          fontWeight: 'bold',
+          border: 'none',
+          cursor: 'pointer',
+          transform: flipStates.productos ? 'rotateY(180deg)' : 'rotateY(0deg)',
+          transition: 'transform 0.6s',
+          transformStyle: 'preserve-3d'
         }}>
           📦 Ver Productos
-        </a>
+        </button>
 
-        <a href="/payments" style={{
+        <button onClick={() => handleFlip('pagos')} style={{
           display: 'inline-block',
           padding: '12px 24px',
           backgroundColor: '#059669',
           color: 'white',
           textDecoration: 'none',
           borderRadius: '8px',
-          fontWeight: 'bold'
+          fontWeight: 'bold',
+          border: 'none',
+          cursor: 'pointer',
+          transform: flipStates.pagos ? 'rotateY(180deg)' : 'rotateY(0deg)',
+          transition: 'transform 0.6s',
+          transformStyle: 'preserve-3d'
         }}>
           💳 Pagos Móviles
-        </a>
+        </button>
       </div>
 
       <div style={{ marginTop: '50px', padding: '20px', backgroundColor: '#f3f4f6', borderRadius: '12px' }}>

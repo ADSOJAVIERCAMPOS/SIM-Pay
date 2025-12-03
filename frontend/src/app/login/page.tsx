@@ -376,8 +376,12 @@ export default function LoginPage() {
               </Button>
             </div>
 
-            {/* Toggle between login/signup - DOS BOTONES SEPARADOS CON ANIMACIÓN */}
-            <div className="pt-6 border-t border-gray-100 mt-6 space-y-3" style={{ transition: 'transform 0.6s', transform: `rotate(${menuRotation}deg)` }}>
+            {/* Toggle between login/signup - ANIMACIÓN FLIP 3D */}
+            <div className="pt-6 border-t border-gray-100 mt-6 space-y-3" style={{ 
+              transition: 'transform 0.6s', 
+              transform: `rotateY(${menuRotation}deg)`,
+              transformStyle: 'preserve-3d'
+            }}>
               <p className="text-center text-sm text-gray-600">
                 {isSignUp ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}
               </p>

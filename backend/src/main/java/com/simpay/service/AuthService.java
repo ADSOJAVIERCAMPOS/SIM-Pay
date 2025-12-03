@@ -1,28 +1,36 @@
 package com.simpay.service;
 
-import java.util.Date;
-import java.util.Optional;
-
-import javax.crypto.SecretKey;
-
+import com.simpay.controller.AuthController;
+import com.simpay.dto.JwtResponse;
+import com.simpay.dto.LoginRequest;
+import com.simpay.entity.DeviceLog;
+import com.simpay.entity.Usuario;
+import com.simpay.repository.DeviceLogRepository;
+import com.simpay.repository.UsuarioRepository;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.simpay.dto.JwtResponse;
-import com.simpay.dto.LoginRequest;
-import com.simpay.entity.Usuario;
-import com.simpay.repository.UsuarioRepository;
-
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
+import javax.crypto.SecretKey;
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class AuthService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private DeviceLogRepository deviceLogRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -36,12 +44,8 @@ public class AuthService {
     public JwtResponse login(LoginRequest loginRequest) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByEmailAndActivoTrue(loginRequest.getEmail());
         
-    @Value("${app.jwt.expiration}")
-    private int jwtExpiration;
-
-    // Almacenamiento temporal de códigos de verificación (en producción usar Redis o base de datos)
-    private Map<String, String> verificationCodes = new HashMap<>();
-    private Map<String, Long> codeTimestamps = new HashMap<>();xception("Usuario no encontrado");
+        if (usuarioOpt.isEmpty()) {
+            throw new RuntimeException("Usuario no encontrado");
         }
         
         Usuario usuario = usuarioOpt.get();
@@ -51,6 +55,13 @@ public class AuthService {
         }
         
         String token = generateJwtToken(usuario);
+        
+        // Notificar al superadmin del login
+        emailService.sendDataChangeNotification(
+            "USUARIO",
+            "LOGIN",
+            "Usuario: " + usuario.getEmail() + " - Rol: " + usuario.getRol().name()
+        );
         
         return new JwtResponse(
             token,
@@ -93,64 +104,84 @@ public class AuthService {
         }
     }
 
-    // Métodos para 2FA y verificación de dispositivos
+    // ========== MÉTODOS PARA 2FA Y VERIFICACIÓN DE DISPOSITIVOS ==========
+    
     public boolean isNewDevice(AuthController.DeviceCheckRequest request) {
         // En producción, verificar contra base de datos de dispositivos conocidos
-        // Por ahora, simular que el 50% de los casos son nuevos dispositivos
         String userAgent = request.getDeviceInfo().getUserAgent();
         return userAgent != null && !userAgent.contains("Chrome");
     }
 
     public boolean requires2FAVerification(String provider) {
-        // En producción, verificar configuración de usuario
-        // Por ahora, siempre requerir 2FA para OAuth externo
+        // Siempre requerir 2FA para OAuth externo
         return true;
     }
 
     public String generateVerificationCode() {
         SecureRandom random = new SecureRandom();
-        int code = 100000 + random.nextInt(900000); // Genera código de 6 dígitos
+        int code = 100000 + random.nextInt(900000);
         return String.valueOf(code);
     }
 
     public void sendVerificationNotification(String provider, String code, AuthController.DeviceInfo deviceInfo) {
-        // Almacenar código con timestamp
-        String key = provider + "_" + deviceInfo.getUserAgent();
-        verificationCodes.put(key, code);
-        codeTimestamps.put(key, System.currentTimeMillis());
-
-        // En producción: enviar email o SMS real
-        System.out.println("==============================================");
-        System.out.println("NOTIFICACIÓN DE SEGURIDAD - NUEVO DISPOSITIVO");
-        System.out.println("==============================================");
-        System.out.println("Proveedor: " + provider.toUpperCase());
-        System.out.println("Dispositivo: " + deviceInfo.getPlatform());
-        System.out.println("Navegador: " + deviceInfo.getUserAgent());
-        System.out.println("Fecha/Hora: " + deviceInfo.getTimestamp());
-        System.out.println("----------------------------------------------");
-        System.out.println("CÓDIGO DE VERIFICACIÓN: " + code);
-        System.out.println("Este código expira en 5 minutos");
-        System.out.println("==============================================");
-
-        // TODO: Integrar con servicio de email (SendGrid, AWS SES, etc.)
-        // TODO: Integrar con servicio de SMS (Twilio, etc.)
+        // Guardar log en PostgreSQL
+        DeviceLog deviceLog = new DeviceLog(
+            provider,
+            deviceInfo.getUserAgent(),
+            deviceInfo.getPlatform(),
+            deviceInfo.getLanguage()
+        );
+        deviceLog.setVerificationCode(code);
+        deviceLog.setNotificationSentTo("ject2583@gmail.com");
+        deviceLog.setTimestamp(LocalDateTime.now());
+        
+        deviceLogRepository.save(deviceLog);
+        
+        // Enviar email al superadmin
+        String deviceInfoStr = String.format(
+            "Platform: %s, UserAgent: %s, Language: %s",
+            deviceInfo.getPlatform(),
+            deviceInfo.getUserAgent(),
+            deviceInfo.getLanguage()
+        );
+        
+        emailService.sendNewDeviceNotification(provider, "N/A", deviceInfoStr, code);
+        
+        System.out.println("✅ DeviceLog guardado en PostgreSQL - ID: " + deviceLog.getId());
+        System.out.println("✅ Notificación enviada a superadmin: ject2583@gmail.com");
     }
 
     public boolean verifyCode(String code, String provider) {
-        // Buscar el código almacenado para este proveedor
-        for (Map.Entry<String, String> entry : verificationCodes.entrySet()) {
-            if (entry.getKey().startsWith(provider + "_") && entry.getValue().equals(code)) {
-                Long timestamp = codeTimestamps.get(entry.getKey());
+        Optional<DeviceLog> deviceLogOpt = deviceLogRepository
+            .findByVerificationCodeAndProviderAndVerifiedFalse(code, provider);
+        
+        if (deviceLogOpt.isPresent()) {
+            DeviceLog deviceLog = deviceLogOpt.get();
+            
+            // Verificar que no haya expirado (5 minutos)
+            LocalDateTime expirationTime = deviceLog.getTimestamp().plusMinutes(5);
+            
+            if (LocalDateTime.now().isBefore(expirationTime)) {
+                deviceLog.setVerified(true);
+                deviceLog.setVerifiedAt(LocalDateTime.now());
+                deviceLogRepository.save(deviceLog);
                 
-                // Verificar que el código no haya expirado (5 minutos)
-                if (timestamp != null && (System.currentTimeMillis() - timestamp) < 300000) {
-                    // Eliminar código usado
-                    verificationCodes.remove(entry.getKey());
-                    codeTimestamps.remove(entry.getKey());
-                    return true;
-                }
+                // Notificar al superadmin de la verificación exitosa
+                emailService.sendDataChangeNotification(
+                    "DEVICE_LOG",
+                    "VERIFIED",
+                    "Provider: " + provider + ", Code: " + code + " - Verificado exitosamente"
+                );
+                
+                System.out.println("✅ Código verificado y guardado en PostgreSQL");
+                return true;
+            } else {
+                System.out.println("❌ Código expirado");
             }
+        } else {
+            System.out.println("❌ Código no encontrado");
         }
+        
         return false;
     }
 }
