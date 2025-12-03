@@ -35,7 +35,10 @@ export default function HomePage() {
 
         <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
           <button onClick={() => handleNavigate('/login')} style={{
-            display: 'inline-block',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
             padding: '12px 24px',
             backgroundColor: '#16a34a',
             color: 'white',
@@ -45,7 +48,7 @@ export default function HomePage() {
             border: 'none',
             cursor: 'pointer'
           }}>
-            🔐 Conectarse
+            <span style={{ fontSize: '24px' }}>🌐</span> Conectarse
           </button>
 
           <button onClick={() => handleNavigate('/productos')} style={{

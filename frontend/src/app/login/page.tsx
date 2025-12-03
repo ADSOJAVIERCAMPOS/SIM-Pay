@@ -386,8 +386,50 @@ export default function LoginPage() {
               >
                 {isLoading
                   ? (isSignUp ? 'Creando cuenta...' : 'Conectando...')
-                  : (isSignUp ? 'Crear Cuenta' : 'Conectarse')}
+                  : (isSignUp ? 'Crear Cuenta' : 'Conéctate')}
               </Button>
+
+              {/* Botones lado a lado en modo login */}
+              {!isSignUp && (
+                <div className="flex gap-3 mt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setIsSignUp(true)
+                      setEmail('')
+                      setPassword('')
+                      setNombre('')
+                      setConfirmPassword('')
+                    }}
+                    className="flex-1 border-2 border-green-600 text-green-600 hover:bg-green-50 font-semibold py-6 rounded-xl transition-all duration-300"
+                  >
+                    Regístrate
+                  </Button>
+                </div>
+              )}
+
+              {/* Botón para volver a login desde registro */}
+              {isSignUp && (
+                <div className="flex gap-3 mt-4">
+                  <p className="text-center text-sm text-gray-600 w-full">
+                    ¿Ya tienes cuenta?{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsSignUp(false)
+                        setEmail('')
+                        setPassword('')
+                        setNombre('')
+                        setConfirmPassword('')
+                      }}
+                      className="text-green-600 hover:text-green-700 font-semibold hover:underline"
+                    >
+                      Conéctate
+                    </button>
+                  </p>
+                </div>
+              )}
             </form>
 
             {/* Divider - OCULTO EN MODO REGISTRO */}
@@ -435,27 +477,6 @@ export default function LoginPage() {
               </Button>
             </div>
             )}
-
-            {/* Toggle between login/signup - SIN ANIMACIÓN */}
-            <div className="pt-6 border-t border-gray-100 mt-6 space-y-3">
-              <p className="text-center text-sm text-gray-600">
-                {isSignUp ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}
-              </p>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setIsSignUp(!isSignUp)
-                  setEmail('')
-                  setPassword('')
-                  setNombre('')
-                  setConfirmPassword('')
-                }}
-                className="w-full border-2 border-green-600 text-green-600 hover:bg-green-50 font-semibold py-6 rounded-xl transition-all duration-300"
-              >
-                {isSignUp ? 'Conectarse' : 'Regístrate'}
-              </Button>
-            </div>
           </CardContent>
         </Card>
 
