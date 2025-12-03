@@ -34,14 +34,14 @@ export default function HomePage() {
         </h2>
 
         <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          {/* Botón Conectarse con planeta */}
+          {/* Botón Conectarse con planeta Tierra */}
           <button onClick={() => handleNavigate('/login')} style={{
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '10px',
             padding: '18px 36px',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
             color: 'white',
             textDecoration: 'none',
             borderRadius: '12px',
@@ -49,14 +49,14 @@ export default function HomePage() {
             fontSize: '18px',
             border: 'none',
             cursor: 'pointer',
-            boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+            boxShadow: '0 4px 15px rgba(239, 68, 68, 0.4)',
             transition: 'all 0.3s ease',
             transform: 'scale(1)'
           }}
           onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
-            <span style={{ fontSize: '32px' }}>🌐</span>
+            <span style={{ fontSize: '32px' }}>🌍</span>
             Conectarse
           </button>
 
@@ -67,7 +67,7 @@ export default function HomePage() {
             justifyContent: 'center',
             gap: '10px',
             padding: '18px 36px',
-            background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
             color: 'white',
             textDecoration: 'none',
             borderRadius: '12px',
@@ -75,7 +75,7 @@ export default function HomePage() {
             fontSize: '18px',
             border: 'none',
             cursor: 'pointer',
-            boxShadow: '0 4px 15px rgba(240, 147, 251, 0.4)',
+            boxShadow: '0 4px 15px rgba(34, 197, 94, 0.4)',
             transition: 'all 0.3s ease',
             transform: 'scale(1)'
           }}
@@ -86,14 +86,14 @@ export default function HomePage() {
             Ver Productos
           </button>
 
-          {/* Botón Pagos Móviles */}
+          {/* Botón Pagos Digitales con celular */}
           <button onClick={() => handleNavigate('/payments')} style={{
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '10px',
             padding: '18px 36px',
-            background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
             color: 'white',
             textDecoration: 'none',
             borderRadius: '12px',
@@ -101,15 +101,15 @@ export default function HomePage() {
             fontSize: '18px',
             border: 'none',
             cursor: 'pointer',
-            boxShadow: '0 4px 15px rgba(79, 172, 254, 0.4)',
+            boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4)',
             transition: 'all 0.3s ease',
             transform: 'scale(1)'
           }}
           onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
-            <span style={{ fontSize: '32px' }}>💳</span>
-            Pagos Móviles
+            <span style={{ fontSize: '32px' }}>📱</span>
+            Pagos Digitales
           </button>
         </div>
 
