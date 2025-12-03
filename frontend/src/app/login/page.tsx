@@ -20,6 +20,7 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [show2FAModal, setShow2FAModal] = useState(false)
+  const [showAccountSelectModal, setShowAccountSelectModal] = useState(false)
   const [verificationCode, setVerificationCode] = useState('')
   const [pendingProvider, setPendingProvider] = useState<'google' | 'facebook' | null>(null)
   const [menuRotation, setMenuRotation] = useState(0)
@@ -101,6 +102,13 @@ export default function LoginPage() {
   }
 
   const handleGoogleLogin = async () => {
+    // Mostrar modal de selección de cuenta primero
+    setPendingProvider('google')
+    setShowAccountSelectModal(true)
+  }
+
+  const proceedWithGoogleLogin = async () => {
+    setShowAccountSelectModal(false)
     try {
       // Detectar información del dispositivo
       const deviceInfo = {
@@ -121,7 +129,6 @@ export default function LoginPage() {
 
       if (data.isNewDevice || data.requires2FA) {
         // Mostrar modal de verificación 2FA
-        setPendingProvider('google')
         setShow2FAModal(true)
         toast.info('Se ha enviado un código de verificación a tu correo/teléfono')
       } else {
@@ -135,6 +142,13 @@ export default function LoginPage() {
   }
 
   const handleFacebookLogin = async () => {
+    // Mostrar modal de selección de cuenta primero
+    setPendingProvider('facebook')
+    setShowAccountSelectModal(true)
+  }
+
+  const proceedWithFacebookLogin = async () => {
+    setShowAccountSelectModal(false)
     try {
       // Detectar información del dispositivo
       const deviceInfo = {
@@ -155,7 +169,6 @@ export default function LoginPage() {
 
       if (data.isNewDevice || data.requires2FA) {
         // Mostrar modal de verificación 2FA
-        setPendingProvider('facebook')
         setShow2FAModal(true)
         toast.info('Se ha enviado un código de verificación a tu correo/teléfono')
       } else {
@@ -376,12 +389,8 @@ export default function LoginPage() {
               </Button>
             </div>
 
-            {/* Toggle between login/signup - ANIMACIÓN FLIP 3D */}
-            <div className="pt-6 border-t border-gray-100 mt-6 space-y-3" style={{ 
-              transition: 'transform 0.6s', 
-              transform: `rotateY(${menuRotation}deg)`,
-              transformStyle: 'preserve-3d'
-            }}>
+            {/* Toggle between login/signup - SIN ANIMACIÓN */}
+            <div className="pt-6 border-t border-gray-100 mt-6 space-y-3">
               <p className="text-center text-sm text-gray-600">
                 {isSignUp ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}
               </p>
@@ -390,7 +399,6 @@ export default function LoginPage() {
                 variant="outline"
                 onClick={() => {
                   setIsSignUp(!isSignUp)
-                  setMenuRotation(menuRotation + 180)
                   setEmail('')
                   setPassword('')
                   setNombre('')
@@ -410,6 +418,70 @@ export default function LoginPage() {
           <p>JAVIER - ANGIE</p>
         </div>
       </div>
+
+      {/* Modal de Selección de Cuenta OAuth */}
+      {showAccountSelectModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+          <Card className="w-full max-w-md bg-white shadow-2xl">
+            <CardHeader>
+              <CardTitle className="text-xl text-center text-gray-900">
+                Seleccionar Cuenta de {pendingProvider === 'google' ? 'Google' : 'Facebook'}
+              </CardTitle>
+              <CardDescription className="text-center">
+                Elige una cuenta para continuar con {pendingProvider === 'google' ? 'Google' : 'Facebook'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                {/* Opción: Usar cuenta existente */}
+                <button
+                  onClick={() => {
+                    if (pendingProvider === 'google') proceedWithGoogleLogin()
+                    else if (pendingProvider === 'facebook') proceedWithFacebookLogin()
+                  }}
+                  className="w-full p-4 border-2 border-gray-200 rounded-xl hover:border-green-500 hover:bg-green-50 transition-all flex items-center gap-3 text-left"
+                >
+                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                    {pendingProvider === 'google' ? '🔵' : '🔷'}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Usar cuenta existente</p>
+                    <p className="text-sm text-gray-500">Continuar con tu cuenta de {pendingProvider === 'google' ? 'Google' : 'Facebook'}</p>
+                  </div>
+                </button>
+
+                {/* Opción: Usar otra cuenta */}
+                <button
+                  onClick={() => {
+                    if (pendingProvider === 'google') proceedWithGoogleLogin()
+                    else if (pendingProvider === 'facebook') proceedWithFacebookLogin()
+                  }}
+                  className="w-full p-4 border-2 border-gray-200 rounded-xl hover:border-green-500 hover:bg-green-50 transition-all flex items-center gap-3 text-left"
+                >
+                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                    ➕
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Usar otra cuenta</p>
+                    <p className="text-sm text-gray-500">Iniciar sesión con una cuenta diferente</p>
+                  </div>
+                </button>
+              </div>
+
+              <Button
+                onClick={() => {
+                  setShowAccountSelectModal(false)
+                  setPendingProvider(null)
+                }}
+                variant="outline"
+                className="w-full border-2 border-gray-300 hover:bg-gray-50"
+              >
+                Cancelar
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Modal de Verificación 2FA */}
       {show2FAModal && (

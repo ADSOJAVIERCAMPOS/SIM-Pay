@@ -7,11 +7,12 @@ export default function HomePage() {
 
   const handleFlip = (button: 'login' | 'productos' | 'pagos') => {
     setFlipStates(prev => ({ ...prev, [button]: true }))
+    // Redirección más rápida para que no se quede el botón volteado
     setTimeout(() => {
       if (button === 'login') window.location.href = '/login'
       else if (button === 'productos') window.location.href = '/productos'
       else window.location.href = '/payments'
-    }, 300)
+    }, 400)
   }
 
   return (
@@ -42,7 +43,7 @@ export default function HomePage() {
           border: 'none',
           cursor: 'pointer',
           transform: flipStates.login ? 'rotateY(180deg)' : 'rotateY(0deg)',
-          transition: 'transform 0.6s',
+          transition: 'transform 0.4s ease-in-out',
           transformStyle: 'preserve-3d'
         }}>
           🔐 Conectarse
@@ -59,7 +60,7 @@ export default function HomePage() {
           border: 'none',
           cursor: 'pointer',
           transform: flipStates.productos ? 'rotateY(180deg)' : 'rotateY(0deg)',
-          transition: 'transform 0.6s',
+          transition: 'transform 0.4s ease-in-out',
           transformStyle: 'preserve-3d'
         }}>
           📦 Ver Productos
@@ -76,7 +77,7 @@ export default function HomePage() {
           border: 'none',
           cursor: 'pointer',
           transform: flipStates.pagos ? 'rotateY(180deg)' : 'rotateY(0deg)',
-          transition: 'transform 0.6s',
+          transition: 'transform 0.4s ease-in-out',
           transformStyle: 'preserve-3d'
         }}>
           💳 Pagos Móviles
