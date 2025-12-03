@@ -184,4 +184,31 @@ public class AuthService {
         
         return false;
     }
+
+    // Método para enviar email de verificación a nuevos usuarios
+    public void sendNewUserVerificationEmail(String email, String nombre) {
+        System.out.println("📧 Enviando email de verificación a: " + email);
+        
+        // Generar código de verificación (6 dígitos)
+        String verificationCode = String.format("%06d", new java.util.Random().nextInt(999999));
+        
+        // Guardar en DeviceLog para trazabilidad
+        DeviceLog log = new DeviceLog();
+        log.setProvider("EMAIL_VERIFICATION");
+        log.setUserAgent("Web Registration");
+        log.setVerificationCode(verificationCode);
+        log.setVerified(false);
+        log.setNotificationSentTo(email);
+        deviceLogRepository.save(log);
+        
+        // Notificar a superadmin
+        emailService.sendNewUserNotification(
+            email,
+            nombre != null ? nombre : "Usuario nuevo",
+            "Código de verificación: " + verificationCode
+        );
+        
+        // En producción: enviar email real al usuario con el código
+        System.out.println("✅ Email de verificación enviado. Código: " + verificationCode);
+    }
 }

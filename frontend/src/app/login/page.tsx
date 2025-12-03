@@ -27,6 +27,25 @@ export default function LoginPage() {
   const { login } = useAuth()
   const router = useRouter()
 
+  const sendVerificationEmail = async (email: string, nombre: string) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/send-verification`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, nombre })
+      })
+      
+      if (response.ok) {
+        console.log('✅ Correo de verificación enviado')
+        toast.success('✉️ Correo de verificación enviado')
+      } else {
+        console.warn('⚠️ No se pudo enviar correo de verificación')
+      }
+    } catch (error) {
+      console.error('Error enviando email:', error)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -53,10 +72,13 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      const endpoint = isSignUp ? '/auth/register' : '/auth/login'
+      const endpoint = isSignUp ? '/api/auth/register' : '/api/auth/login'
       const body = isSignUp
-        ? { email, password, nombre, rol: 'VENDEDOR' }
+        ? { email, password, nombre, rol: 'CAJERO' }
         : { email, password }
+
+      console.log('Intentando conectar a:', process.env.NEXT_PUBLIC_API_URL + endpoint)
+      console.log('Datos:', body)
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, {
         method: 'POST',
@@ -66,36 +88,45 @@ export default function LoginPage() {
         body: JSON.stringify(body),
       })
 
+      console.log('Response status:', response.status)
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Error de conexión' }))
+        throw new Error(errorData.message || 'Error en la solicitud')
+      }
+
       const data = await response.json()
 
-      if (response.ok) {
-        if (isSignUp) {
-          toast.success('¡Cuenta creada exitosamente! Iniciando sesión...')
-          setTimeout(() => {
-            login(data.token, {
-              id: data.id,
-              email: data.email,
-              nombre: data.nombre,
-              rol: data.rol,
-            })
-            router.push('/dashboard')
-          }, 1000)
-        } else {
+      if (isSignUp) {
+        toast.success('¡Cuenta creada exitosamente! Enviando correo de verificación...')
+        // Enviar correo de verificación
+        await sendVerificationEmail(email, nombre)
+        setTimeout(() => {
           login(data.token, {
             id: data.id,
             email: data.email,
             nombre: data.nombre,
             rol: data.rol,
           })
-          toast.success('¡Bienvenido a SIM-Pay!')
           router.push('/dashboard')
-        }
+        }, 1500)
       } else {
-        toast.error(data.message || `Error al ${isSignUp ? 'registrarse' : 'iniciar sesión'}`)
+        login(data.token, {
+          id: data.id,
+          email: data.email,
+          nombre: data.nombre,
+          rol: data.rol,
+        })
+        toast.success('¡Bienvenido a SIM-Pay!')
+        router.push('/dashboard')
       }
-    } catch (error) {
-      console.error('Error:', error)
-      toast.error('Error de conexión. Intente nuevamente.')
+    } catch (error: any) {
+      console.error('Error detallado:', error)
+      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        toast.error('❌ Error de conexión: Verifique su internet o que el backend esté ejecutándose')
+      } else {
+        toast.error(error.message || `Error al ${isSignUp ? 'registrarse' : 'iniciar sesión'}`)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -119,7 +150,7 @@ export default function LoginPage() {
       }
 
       // Enviar notificación al backend para verificar si es nuevo dispositivo
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/check-device`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/check-device`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ provider: 'google', deviceInfo })
@@ -132,8 +163,13 @@ export default function LoginPage() {
         setShow2FAModal(true)
         toast.info('Se ha enviado un código de verificación a tu correo/teléfono')
       } else {
-        // Proceder con OAuth normal
-        window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID&redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/google/callback') + '&response_type=code&scope=email%20profile'
+        // Abrir OAuth en popup/ventana nueva
+        const oauthUrl = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID&redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/google/callback') + '&response_type=code&scope=email%20profile'
+        const popup = window.open(oauthUrl, 'Google Login', 'width=600,height=700,left=200,top=100')
+        
+        if (!popup) {
+          toast.error('Por favor habilite las ventanas emergentes')
+        }
       }
     } catch (error) {
       console.error('Error en Google login:', error)
@@ -159,7 +195,7 @@ export default function LoginPage() {
       }
 
       // Enviar notificación al backend para verificar si es nuevo dispositivo
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/check-device`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/check-device`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ provider: 'facebook', deviceInfo })
@@ -172,8 +208,13 @@ export default function LoginPage() {
         setShow2FAModal(true)
         toast.info('Se ha enviado un código de verificación a tu correo/teléfono')
       } else {
-        // Proceder con OAuth normal
-        window.location.href = 'https://www.facebook.com/v12.0/dialog/oauth?client_id=YOUR_APP_ID&redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/facebook/callback') + '&scope=email,public_profile'
+        // Abrir OAuth en popup/ventana nueva
+        const oauthUrl = 'https://www.facebook.com/v12.0/dialog/oauth?client_id=YOUR_APP_ID&redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/facebook/callback') + '&scope=email,public_profile'
+        const popup = window.open(oauthUrl, 'Facebook Login', 'width=600,height=700,left=200,top=100')
+        
+        if (!popup) {
+          toast.error('Por favor habilite las ventanas emergentes')
+        }
       }
     } catch (error) {
       console.error('Error en Facebook login:', error)
@@ -192,7 +233,7 @@ export default function LoginPage() {
     }
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-2fa`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify-2fa`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: verificationCode, provider: pendingProvider })
@@ -204,11 +245,13 @@ export default function LoginPage() {
         toast.success('Código verificado correctamente')
         setShow2FAModal(false)
         
-        // Continuar con OAuth según el proveedor
+        // Abrir OAuth en popup según el proveedor
         if (pendingProvider === 'google') {
-          window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID&redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/google/callback') + '&response_type=code&scope=email%20profile'
+          const oauthUrl = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID&redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/google/callback') + '&response_type=code&scope=email%20profile'
+          window.open(oauthUrl, 'Google Login', 'width=600,height=700,left=200,top=100')
         } else if (pendingProvider === 'facebook') {
-          window.location.href = 'https://www.facebook.com/v12.0/dialog/oauth?client_id=YOUR_APP_ID&redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/facebook/callback') + '&scope=email,public_profile'
+          const oauthUrl = 'https://www.facebook.com/v12.0/dialog/oauth?client_id=YOUR_APP_ID&redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/facebook/callback') + '&scope=email,public_profile'
+          window.open(oauthUrl, 'Facebook Login', 'width=600,height=700,left=200,top=100')
         }
       } else {
         toast.error('Código inválido. Intente nuevamente.')

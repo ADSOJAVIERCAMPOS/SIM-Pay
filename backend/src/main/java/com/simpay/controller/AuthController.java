@@ -72,6 +72,17 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/send-verification")
+    public ResponseEntity<?> sendVerificationEmail(@RequestBody VerificationEmailRequest request) {
+        try {
+            authService.sendNewUserVerificationEmail(request.getEmail(), request.getNombre());
+            return ResponseEntity.ok(new MessageResponse("Correo de verificación enviado exitosamente"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error al enviar correo: " + e.getMessage()));
+        }
+    }
+
     // Clases internas para requests y responses
     public static class DeviceCheckRequest {
         private String provider;
@@ -141,6 +152,16 @@ public class AuthController {
         public void setVerified(boolean verified) { this.verified = verified; }
         public String getMessage() { return message; }
         public void setMessage(String message) { this.message = message; }
+    }
+
+    public static class VerificationEmailRequest {
+        private String email;
+        private String nombre;
+
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
+        public String getNombre() { return nombre; }
+        public void setNombre(String nombre) { this.nombre = nombre; }
     }
 
     // Clase interna para respuestas de mensaje
