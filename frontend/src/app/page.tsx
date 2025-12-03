@@ -19,19 +19,19 @@ export default function HomePage() {
         <a href="/login" style={{
           display: 'inline-block',
           padding: '12px 24px',
-          backgroundColor: '#2563eb',
+          backgroundColor: '#16a34a',
           color: 'white',
           textDecoration: 'none',
           borderRadius: '8px',
           fontWeight: 'bold'
         }}>
-          🔐 Iniciar Sesión
+          🔐 Conectarse
         </a>
 
         <a href="/productos" style={{
           display: 'inline-block',
           padding: '12px 24px',
-          backgroundColor: '#ea580c',
+          backgroundColor: '#15803d',
           color: 'white',
           textDecoration: 'none',
           borderRadius: '8px',
@@ -43,7 +43,7 @@ export default function HomePage() {
         <a href="/payments" style={{
           display: 'inline-block',
           padding: '12px 24px',
-          backgroundColor: '#7c3aed',
+          backgroundColor: '#059669',
           color: 'white',
           textDecoration: 'none',
           borderRadius: '8px',

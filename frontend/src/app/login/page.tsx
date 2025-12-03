@@ -6,7 +6,7 @@ import { useAuth } from '@/lib/auth-context'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, User, Key, AtSign } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function LoginPage() {
@@ -16,6 +16,7 @@ export default function LoginPage() {
   const [nombre, setNombre] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const { login } = useAuth()
@@ -96,11 +97,13 @@ export default function LoginPage() {
   }
 
   const handleGoogleLogin = () => {
-    toast.info('Google OAuth estará disponible próximamente')
+    // Redirigir a Google OAuth
+    window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID&redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/google/callback') + '&response_type=code&scope=email%20profile'
   }
 
   const handleFacebookLogin = () => {
-    toast.info('Facebook OAuth estará disponible próximamente')
+    // Redirigir a Facebook OAuth
+    window.location.href = 'https://www.facebook.com/v12.0/dialog/oauth?client_id=YOUR_APP_ID&redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/facebook/callback') + '&scope=email,public_profile'
   }
 
   const handleForgotPassword = () => {
@@ -112,15 +115,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md mx-auto">
         {/* Login/Signup Card - RECUADRO VISIBLE CON BORDE */}
         <Card className="w-full shadow-2xl border-4 border-green-500 backdrop-blur-sm bg-white/95 p-2">
-          <CardHeader className="space-y-1 pb-6 pt-6">
-            <CardTitle className="text-2xl text-center font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-              {isSignUp ? 'Crear Cuenta' : 'Iniciar Sesión'}
-            </CardTitle>
-            <CardDescription className="text-center text-gray-500 text-sm">
-              {isSignUp
-                ? 'Completa el formulario para crear tu cuenta'
-                : 'Ingresa tus credenciales para continuar'}
-            </CardDescription>
+          <CardHeader className="space-y-1 pb-2 pt-6">
           </CardHeader>
           <CardContent className="space-y-4">
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -145,7 +140,7 @@ export default function LoginPage() {
               {/* Email */}
               <div className="space-y-2">
                 <label htmlFor="email" className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-green-600" />
+                  <AtSign className="h-4 w-4 text-green-600" />
                   Correo Electrónico
                 </label>
                 <Input
@@ -161,7 +156,7 @@ export default function LoginPage() {
               {/* Password */}
               <div className="space-y-2">
                 <label htmlFor="password" className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <Lock className="h-4 w-4 text-green-600" />
+                  <Key className="h-4 w-4 text-green-600" />
                   Contraseña
                 </label>
                 <div className="relative">
@@ -191,17 +186,30 @@ export default function LoginPage() {
               {isSignUp && (
                 <div className="space-y-2">
                   <label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <Lock className="h-4 w-4 text-green-600" />
+                    <Key className="h-4 w-4 text-green-600" />
                     Confirmar Contraseña
                   </label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    placeholder="••••••••"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full border-gray-300 focus:border-green-500 focus:ring-green-500"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full pr-10 border-gray-300 focus:border-green-500 focus:ring-green-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute inset-y-0 right-0 flex items-center pr-3 hover:text-green-600 transition-colors"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4 text-gray-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -211,7 +219,8 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={handleForgotPassword}
-                    className="text-sm text-green-600 hover:text-green-700 font-medium"
+                    disabled={!email || !email.includes('@')}
+                    className="text-sm text-green-600 hover:text-green-700 font-medium disabled:text-gray-400 disabled:cursor-not-allowed"
                   >
                     ¿Olvidaste tu contraseña?
                   </button>
@@ -221,11 +230,11 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 mt-2"
-                disabled={isLoading}
+                disabled={isLoading || !email || !password}
               >
                 {isLoading
-                  ? (isSignUp ? 'Creando cuenta...' : 'Iniciando sesión...')
-                  : (isSignUp ? 'Crear Cuenta' : 'Iniciar Sesión')}
+                  ? (isSignUp ? 'Creando cuenta...' : 'Conectando...')
+                  : (isSignUp ? 'Crear Cuenta' : 'Conectarse')}
               </Button>
             </form>
 
@@ -297,7 +306,7 @@ export default function LoginPage() {
         {/* Footer - Solo copyright */}
         <div className="text-center mt-6 text-xs text-gray-500">
           <p className="font-semibold">© 2026</p>
-          <p>Producido por Javier Campos y Angie Pinzón</p>
+          <p>JAVIER - ANGIE</p>
         </div>
       </div>
     </div>
