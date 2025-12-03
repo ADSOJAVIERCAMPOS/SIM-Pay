@@ -1,29 +1,29 @@
 package com.simpay.service;
 
-import com.sendgrid.*;
-import com.sendgrid.helpers.mail.Mail;
-import com.sendgrid.helpers.mail.objects.Content;
-import com.sendgrid.helpers.mail.objects.Email;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import com.resend.Resend;
+import com.resend.core.exception.ResendException;
+import com.resend.services.emails.model.CreateEmailOptions;
+import com.resend.services.emails.model.CreateEmailResponse;
 
 @Service
 public class EmailService {
     
-    @Value("${sendgrid.api.key}")
-    private String sendGridApiKey;
+    @Value("${resend.api.key}")
+    private String resendApiKey;
     
-    @Value("${sendgrid.from.email}")
+    @Value("${resend.from.email}")
     private String fromEmail;
     
-    @Value("${sendgrid.from.name}")
+    @Value("${resend.from.name}")
     private String fromName;
     
-    @Value("${sendgrid.superadmin.email}")
+    @Value("${resend.superadmin.email}")
     private String superadminEmail;
     
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -74,12 +74,12 @@ public class EmailService {
     }
     
     /**
-     * Método principal para enviar emails con SendGrid
+     * Método principal para enviar emails con Resend
      */
     private void sendEmail(String toEmail, String subject, String htmlBody) {
         // Si no hay API key configurada, solo mostrar en consola (modo desarrollo)
-        if (sendGridApiKey == null || sendGridApiKey.trim().isEmpty()) {
-            System.out.println("\n⚠️ SENDGRID_API_KEY no configurada - Modo simulación");
+        if (resendApiKey == null || resendApiKey.trim().isEmpty()) {
+            System.out.println("\n⚠️ RESEND_API_KEY no configurada - Modo simulación");
             System.out.println("═══════════════════════════════════════");
             System.out.println("Para: " + toEmail);
             System.out.println("Asunto: " + subject);
@@ -89,31 +89,23 @@ public class EmailService {
         }
         
         try {
-            Email from = new Email(fromEmail, fromName);
-            Email to = new Email(toEmail);
-            Content content = new Content("text/html", htmlBody);
-            Mail mail = new Mail(from, subject, to, content);
+            Resend resend = new Resend(resendApiKey);
             
-            SendGrid sg = new SendGrid(sendGridApiKey);
-            Request request = new Request();
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                .from(fromName + " <" + fromEmail + ">")
+                .to(toEmail)
+                .subject(subject)
+                .html(htmlBody)
+                .build();
             
-            request.setMethod(Method.POST);
-            request.setEndpoint("mail/send");
-            request.setBody(mail.build());
+            CreateEmailResponse data = resend.emails().send(params);
             
-            Response response = sg.api(request);
+            System.out.println("✅ Email enviado exitosamente vía Resend");
+            System.out.println("Email ID: " + data.getId());
             
-            if (response.getStatusCode() >= 200 && response.getStatusCode() < 300) {
-                System.out.println("✅ Email enviado exitosamente vía SendGrid");
-                System.out.println("Status Code: " + response.getStatusCode());
-            } else {
-                System.err.println("❌ Error al enviar email - Status: " + response.getStatusCode());
-                System.err.println("Response: " + response.getBody());
-            }
-            
-        } catch (IOException ex) {
-            System.err.println("❌ Excepción al enviar email con SendGrid: " + ex.getMessage());
-            ex.printStackTrace();
+        } catch (ResendException e) {
+            System.err.println("❌ Error al enviar email con Resend: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     

@@ -165,10 +165,10 @@ export default function LoginPage() {
       } else {
         // Abrir OAuth en popup/ventana nueva
         const oauthUrl = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID&redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/google/callback') + '&response_type=code&scope=email%20profile'
-        const popup = window.open(oauthUrl, 'Google Login', 'width=600,height=700,left=200,top=100')
+        const popup = window.open(oauthUrl, '_blank', 'width=600,height=700,left=200,top=100,noopener,noreferrer')
         
         if (!popup) {
-          toast.error('Por favor habilite las ventanas emergentes')
+          toast.error('Por favor habilite las ventanas emergentes para OAuth')
         }
       }
     } catch (error) {
@@ -210,10 +210,10 @@ export default function LoginPage() {
       } else {
         // Abrir OAuth en popup/ventana nueva
         const oauthUrl = 'https://www.facebook.com/v12.0/dialog/oauth?client_id=YOUR_APP_ID&redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/facebook/callback') + '&scope=email,public_profile'
-        const popup = window.open(oauthUrl, 'Facebook Login', 'width=600,height=700,left=200,top=100')
+        const popup = window.open(oauthUrl, '_blank', 'width=600,height=700,left=200,top=100,noopener,noreferrer')
         
         if (!popup) {
-          toast.error('Por favor habilite las ventanas emergentes')
+          toast.error('Por favor habilite las ventanas emergentes para OAuth')
         }
       }
     } catch (error) {
@@ -248,10 +248,10 @@ export default function LoginPage() {
         // Abrir OAuth en popup según el proveedor
         if (pendingProvider === 'google') {
           const oauthUrl = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID&redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/google/callback') + '&response_type=code&scope=email%20profile'
-          window.open(oauthUrl, 'Google Login', 'width=600,height=700,left=200,top=100')
+          window.open(oauthUrl, '_blank', 'width=600,height=700,left=200,top=100,noopener,noreferrer')
         } else if (pendingProvider === 'facebook') {
           const oauthUrl = 'https://www.facebook.com/v12.0/dialog/oauth?client_id=YOUR_APP_ID&redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/facebook/callback') + '&scope=email,public_profile'
-          window.open(oauthUrl, 'Facebook Login', 'width=600,height=700,left=200,top=100')
+          window.open(oauthUrl, '_blank', 'width=600,height=700,left=200,top=100,noopener,noreferrer')
         }
       } else {
         toast.error('Código inválido. Intente nuevamente.')
@@ -263,8 +263,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-green-50 px-4 py-8">
-      <div className="w-full max-w-md mx-auto">
+    <div style={{ minHeight: '100vh', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'fixed', top: 0, left: 0 }} className="bg-gradient-to-br from-emerald-50 via-white to-green-50 px-4 py-8">
+      <div style={{ width: '100%', maxWidth: '28rem', margin: '0 auto' }}>
         {/* Login/Signup Card - RECUADRO VISIBLE CON BORDE */}
         <Card className="w-full shadow-2xl border-4 border-green-500 backdrop-blur-sm bg-white/95 p-2">
           <CardHeader className="space-y-1 pb-2 pt-6">
@@ -390,17 +390,20 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            {/* Divider */}
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-gray-200" />
+            {/* Divider - OCULTO EN MODO REGISTRO */}
+            {!isSignUp && (
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-gray-200" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-white px-3 text-gray-500 font-medium">O continúa con</span>
+                </div>
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-3 text-gray-500 font-medium">O continúa con</span>
-              </div>
-            </div>
+            )}
 
-            {/* Social Login Buttons - FACEBOOK PRIMERO */}
+            {/* Social Login Buttons - FACEBOOK PRIMERO - OCULTOS EN MODO REGISTRO */}
+            {!isSignUp && (
             <div className="grid grid-cols-2 gap-4">
               {/* Facebook Login - PRIMERO */}
               <Button
@@ -431,6 +434,7 @@ export default function LoginPage() {
                 <span className="font-semibold text-gray-700 text-sm">Google</span>
               </Button>
             </div>
+            )}
 
             {/* Toggle between login/signup - SIN ANIMACIÓN */}
             <div className="pt-6 border-t border-gray-100 mt-6 space-y-3">
@@ -449,7 +453,7 @@ export default function LoginPage() {
                 }}
                 className="w-full border-2 border-green-600 text-green-600 hover:bg-green-50 font-semibold py-6 rounded-xl transition-all duration-300"
               >
-                {isSignUp ? 'Inicia sesión' : 'Regístrate'}
+                {isSignUp ? 'Conectarse' : 'Regístrate'}
               </Button>
             </div>
           </CardContent>
