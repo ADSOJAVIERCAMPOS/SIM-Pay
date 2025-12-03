@@ -77,9 +77,8 @@ cd backend
 # Configurar PostgreSQL local (opcional)
 # Editar src/main/resources/application.properties
 
-# Configurar SendGrid (opcional para emails)
-# Ver SENDGRID_SETUP.md para instrucciones completas
-# Copiar .env.example a .env y completar con API Key
+# Configurar Resend (opcional para emails)
+# Copiar .env.example a .env y completar con API Key de Resend
 
 # Ejecutar aplicación
 ./mvnw spring-boot:run
@@ -96,7 +95,7 @@ npm install
 npm run dev
 ```
 
-### 4. Configuración de SendGrid (Emails)
+### 4. Configuración de Resend (Emails)
 
 SIM-Pay envía notificaciones automáticas por email:
 - Alertas de nuevos dispositivos al superadmin
@@ -105,21 +104,18 @@ SIM-Pay envía notificaciones automáticas por email:
 
 **Configuración rápida:**
 ```bash
-# 1. Obtener API Key en SendGrid
-https://app.sendgrid.com/settings/api_keys
+# 1. Obtener API Key en Resend
+https://resend.com/api-keys
 
 # 2. Configurar variables de entorno
 cd backend
 copy .env.example .env
-# Editar .env con tu SENDGRID_API_KEY
-
-# 3. Verificar configuración
-..\check-sendgrid.bat
+# Editar .env con tu RESEND_API_KEY
 ```
 
-📧 **Documentación completa**: Ver [SENDGRID_SETUP.md](SENDGRID_SETUP.md)
+📧 **Servicio de Email**: Resend (100 emails/día gratis permanentemente)
 
-> **Nota**: Sin configurar SendGrid, el sistema funciona en modo simulación (emails mostrados en consola del backend).
+> **Nota**: Sin configurar Resend, el sistema funciona en modo simulación (emails mostrados en consola del backend).
 
 ## 📊 Arquitectura del Sistema
 
