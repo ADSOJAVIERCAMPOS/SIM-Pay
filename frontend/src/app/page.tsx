@@ -29,54 +29,87 @@ export default function HomePage() {
           />
         </div>
 
-        <h2 style={{ fontSize: '24px', marginBottom: '30px' }}>
-          NEGOCIO ONLINE Y CON PAGOS MÓVILES
+        <h2 style={{ fontSize: '28px', marginBottom: '40px', fontWeight: 'bold', color: '#1f2937' }}>
+          NEGOCIOS EN LÍNEA CON PAGOS DIGITALES
         </h2>
 
         <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          {/* Botón Conectarse con planeta */}
           <button onClick={() => handleNavigate('/login')} style={{
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '8px',
-            padding: '12px 24px',
-            backgroundColor: '#16a34a',
+            gap: '10px',
+            padding: '18px 36px',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             color: 'white',
             textDecoration: 'none',
-            borderRadius: '8px',
+            borderRadius: '12px',
             fontWeight: 'bold',
+            fontSize: '18px',
             border: 'none',
-            cursor: 'pointer'
-          }}>
-            <span style={{ fontSize: '24px' }}>🌐</span> Conectarse
+            cursor: 'pointer',
+            boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+            transition: 'all 0.3s ease',
+            transform: 'scale(1)'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            <span style={{ fontSize: '32px' }}>🌐</span>
+            Conectarse
           </button>
 
+          {/* Botón Ver Productos con carrito */}
           <button onClick={() => handleNavigate('/productos')} style={{
-            display: 'inline-block',
-            padding: '12px 24px',
-            backgroundColor: '#15803d',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+            padding: '18px 36px',
+            background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
             color: 'white',
             textDecoration: 'none',
-            borderRadius: '8px',
+            borderRadius: '12px',
             fontWeight: 'bold',
+            fontSize: '18px',
             border: 'none',
-            cursor: 'pointer'
-          }}>
-            📦 Ver Productos
+            cursor: 'pointer',
+            boxShadow: '0 4px 15px rgba(240, 147, 251, 0.4)',
+            transition: 'all 0.3s ease',
+            transform: 'scale(1)'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            <span style={{ fontSize: '32px' }}>🛒</span>
+            Ver Productos
           </button>
 
+          {/* Botón Pagos Móviles */}
           <button onClick={() => handleNavigate('/payments')} style={{
-            display: 'inline-block',
-            padding: '12px 24px',
-            backgroundColor: '#059669',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+            padding: '18px 36px',
+            background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
             color: 'white',
             textDecoration: 'none',
-            borderRadius: '8px',
+            borderRadius: '12px',
             fontWeight: 'bold',
+            fontSize: '18px',
             border: 'none',
-            cursor: 'pointer'
-          }}>
-            💳 Pagos Móviles
+            cursor: 'pointer',
+            boxShadow: '0 4px 15px rgba(79, 172, 254, 0.4)',
+            transition: 'all 0.3s ease',
+            transform: 'scale(1)'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            <span style={{ fontSize: '32px' }}>💳</span>
+            Pagos Móviles
           </button>
         </div>
 
